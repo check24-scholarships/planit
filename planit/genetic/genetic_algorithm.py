@@ -1,5 +1,4 @@
 
-import math
 import operator
 
 
@@ -14,6 +13,13 @@ class Individual:
 
     def crossover(self, other):
         pass
+
+    def __repr__(self):
+        if self.fitness is None: return f"(@{id(self)})"
+        return f"(@{id(self)} -> {self.fitness})"
+
+    def __str__(self):
+        return self.__repr__()
 
 
 class Population:
@@ -100,8 +106,8 @@ class Evolution:
 
     def _add_random_individual(self):
         individual = self.individual_class(**self.init_params)
-        individual.fitness = -math.inf
         individual.randomize(**self.randomize_params)
+        individual.fitness = self.fitness_func(individual)
         self.population.append(individual)
 
     def _sort_population(self):
@@ -124,3 +130,10 @@ class Evolution:
 
         self.population.extend(offsprings)
         self._kill_weakest(len(offsprings))
+
+    def get_best(self):
+        return self.get_best_n(1)[0]
+
+    def get_best_n(self, n):
+        self._sort_population()
+        return self.population[len(self.population) - n:]
