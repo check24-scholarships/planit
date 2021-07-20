@@ -4,3 +4,4 @@
 
 # Compiled bytecode files
 __pycache__/
+*.pyc
