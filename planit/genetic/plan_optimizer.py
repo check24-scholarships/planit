@@ -157,20 +157,6 @@ class SymbiosisEvaluator (Evaluator):
         return total_score
 
 
-def evaluate_plan(plan: Plan):
-    plant_combinations = get_plant_combinations(plan)
-    symbiosis_score = 0
-
-    for combination in plant_combinations:
-        plant = combination.main_plant
-        score = sum(plantdata.get_symbiosis_score(plant, neighbour)
-                    for neighbour in combination.neighbours) / len(AFFECTED_TILES)
-        symbiosis_score += score
-
-    symbiosis_score /= len(plant_combinations)
-    return symbiosis_score
-
-
 positions = [
     (x, y) for x in range(5) for y in range(5)
 ]
