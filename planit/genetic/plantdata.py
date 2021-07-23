@@ -11,7 +11,11 @@ SYMBIOSES = {
 }
 
 
-def get_symbiosis_score(plant_a, plant_b):
+# For type hinting
+Plant = str
+
+
+def get_symbiosis_score(plant_a: Plant, plant_b: Plant) -> int:
     score = SYMBIOSES.get((plant_a, plant_b), None)
     if score is not None:
         return score

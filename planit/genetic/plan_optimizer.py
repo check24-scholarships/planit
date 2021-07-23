@@ -117,6 +117,46 @@ def get_neighbours(plan: Plan, pos):
     return neighbours
 
 
+class Evaluator:
+    def evaluate(self, plan: Plan) -> float:
+        pass
+
+
+class SymbiosisEvaluator (Evaluator):
+    def __init__(self, positive_weight=1, negative_weight=1):
+        self.positive_weight = positive_weight
+        self.negative_weight = negative_weight
+
+    def get_modified_symbiosis_score(self, plant, neighbour):
+        symbiosis_score = plantdata.get_symbiosis_score(plant, neighbour)
+        symbiosis_score *= self.positive_weight if symbiosis_score > 0 else self.negative_weight
+        return symbiosis_score
+
+    def evaluate(self, plan: Plan) -> float:
+        total_score = 0
+        non_empty_count = 0
+
+        for pos, plant in plan.plants_by_pos.items():
+            if plant is None:
+                continue
+            non_empty_count += 1
+
+            plant_score = sum(
+                self.get_modified_symbiosis_score(plant, neighbour)
+              for neighbour in get_neighbours(plan, pos))
+            total_score += plant_score
+
+        if non_empty_count == 0:
+            return 0
+
+        total_score /= (
+            non_empty_count
+            * len(AFFECTED_TILES)
+            * max(self.negative_weight, self.positive_weight))
+
+        return total_score
+
+
 def evaluate_plan(plan: Plan):
     plant_combinations = get_plant_combinations(plan)
     symbiosis_score = 0
@@ -147,7 +187,7 @@ positions = random_solution.movable_positions
 print(positions)
 print(plants)
 
-evo = Evolution(Plan, 50, 10, evaluate_plan, init_params={"plants_by_pos": plants_by_pos, "movable_positions": positions})
+evo = Evolution(Plan, 50, 10, SymbiosisEvaluator().evaluate, init_params={"plants_by_pos": plants_by_pos, "movable_positions": positions})
 
 best = evo.population[0]
 print(best)
