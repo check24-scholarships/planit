@@ -6,6 +6,7 @@ from .genetic_algorithm import Evolution, Individual
 from . import plantdata
 
 from tabulate import tabulate
+from tqdm import tqdm, trange
 
 
 # WIP, a lot is still going to change
@@ -14,7 +15,7 @@ from tabulate import tabulate
 class Plan (Individual):
     def __init__(self, plants_by_pos: dict, movable_positions: list):
         self.movable_positions = movable_positions
-        self.plants_by_pos = plants_by_pos
+        self.plants_by_pos = dict(plants_by_pos)
 
     @staticmethod
     def from_dict(d: dict):
@@ -49,7 +50,7 @@ class Plan (Individual):
 
     def crossover(self, other):
         # TODO: Write the crossover algorithm
-        offspring = Plan(self.plants_by_pos, self.movable_positions)
+        offspring = Plan(dict(self.plants_by_pos), list(self.movable_positions))
         return offspring
 
     def __str__(self):
@@ -68,38 +69,12 @@ class Plan (Individual):
         return tabulate(table)
 
 
-@dataclass()
-class PlantCombination:
-    main_plant: str
-    neighbours: list
-
-
 # Relative positions of the tiles that affect the central tile
 AFFECTED_TILES = [
     (-1, 1),  (0, 1),  (1, 1),
     (-1, 0),           (1, 0),
-    (-1, -1), (0, -1), (-1, -1)
+    (-1, -1), (0, -1), (1, -1)
 ]
-
-
-def get_plant_combinations(plan: Plan):
-    plant_combinations = []
-
-    for pos, plant in plan.plants_by_pos.items():
-        neighbours = []
-
-        for (dx, dy) in AFFECTED_TILES:
-            neighbour_pos = (pos[0] + dx, pos[1] + dy)
-            neighbour = plan.plants_by_pos.get(neighbour_pos, None)
-
-            if neighbour is None:
-                continue
-
-            neighbours.append(neighbour)
-
-        plant_combinations.append(PlantCombination(plant, neighbours))
-
-    return plant_combinations
 
 
 def get_neighbours(plan: Plan, pos):
@@ -143,7 +118,7 @@ class SymbiosisEvaluator (Evaluator):
 
             plant_score = sum(
                 self.get_modified_symbiosis_score(plant, neighbour)
-              for neighbour in get_neighbours(plan, pos))
+                for neighbour in get_neighbours(plan, pos))
             total_score += plant_score
 
         if non_empty_count == 0:
@@ -157,31 +132,41 @@ class SymbiosisEvaluator (Evaluator):
         return total_score
 
 
-positions = [
-    (x, y) for x in range(5) for y in range(5)
-]
+def optimize(plan: Plan, iterations=1000) -> Plan:
+    evo = Evolution(
+        Plan,
+        50,
+        10,
+        evaluate_fitness,
+        init_params={"plants_by_pos": plan.plants_by_pos, "movable_positions": plan.movable_positions})
 
-available_plants = ["Carrot", "Beetroot", "Cabbage", "Celery"]
-plants = [available_plants[i % len(available_plants)] for i in range(len(positions))]
-plants_by_pos = {(x, y): plant for (x, y), plant in zip(positions, plants)}
+    for i in trange(iterations, leave=False):
+        evo.evolve()
 
-random_solution = Plan(plants_by_pos, positions)
-random_solution.randomize()
-plants_by_pos = random_solution.plants_by_pos
-positions = random_solution.movable_positions
+    return evo.get_best()
 
-print(positions)
-print(plants)
 
-evo = Evolution(Plan, 50, 10, SymbiosisEvaluator().evaluate, init_params={"plants_by_pos": plants_by_pos, "movable_positions": positions})
+evaluate_fitness = SymbiosisEvaluator().evaluate
 
-best = evo.population[0]
-print(best)
 
-for i in range(1000):
-    evo.evolve()
-    best = evo.get_best()
+if __name__ == '__main__':
+    positions = [
+        (x, y) for x in range(5) for y in range(5)
+    ]
+
+    available_plants = ["Carrot", "Beetroot", "Cabbage", "Celery"]
+    plants = [available_plants[i % len(available_plants)] for i in range(len(positions))]
+    plants_by_pos = {(x, y): plant for (x, y), plant in zip(positions, plants)}
+
+    random_solution = Plan(plants_by_pos, positions)
+    random_solution.randomize()
+    plants_by_pos = random_solution.plants_by_pos
+    positions = random_solution.movable_positions
+
+    print(positions)
+    print(plants)
+    print(random_solution)
+
+    best = optimize(random_solution)
     print(best.fitness)
-
-print(best)
-print("---")
+    print(best)

@@ -52,6 +52,9 @@ class Selection:
         return pairs
 
 
+# TODO: Add stall generations counter
+
+
 class Evolution:
     def __init__(
             self,
