@@ -16,6 +16,21 @@ class Plan (Individual):
         self.movable_positions = movable_positions
         self.plants_by_pos = plants_by_pos
 
+    @staticmethod
+    def from_dict(d: dict):
+        plants_by_pos = {}
+
+        for pos, plant in d["plants_by_pos"].items():
+            plants_by_pos[(pos[0], pos[1])] = plant
+
+        return Plan(plants_by_pos, d["movable_positions"])
+
+    def to_dict(self):
+        return {
+            "plants_by_pos": self.plants_by_pos,
+            "movable_positions": self.movable_positions
+        }
+
     def randomize(self):
         plants = list(self.plants_by_pos.values())
         random.shuffle(plants)
@@ -137,7 +152,7 @@ evo = Evolution(Plan, 50, 10, evaluate_plan, init_params={"plants_by_pos": plant
 best = evo.population[0]
 print(best)
 
-for i in range(10000):
+for i in range(1000):
     evo.evolve()
     best = evo.get_best()
     print(best.fitness)
