@@ -22,33 +22,6 @@ class Individual:
         return self.__repr__()
 
 
-class Population:
-    def __init__(
-            self,
-            individual_class,
-            init_params: dict = None,
-            mutate_params: dict = None,
-            crossover_params: dict = None):
-
-        if init_params is None:
-            init_params = {}
-
-        self.individual_class = individual_class
-        self.individuals = []
-
-        self.init_params = init_params
-
-    def add_new_individual(self):
-        individual = self.individual_class()
-        individual = Individual()
-        individual.fitness = None
-        individual.randomize()
-        self.individuals.append(individual)
-
-    def kill_weakest(self, n):
-        pass
-
-
 class Selection:
     @staticmethod
     def tournament(population: list, offspring_count: int, contenders_per_round: int = 2):
@@ -69,6 +42,14 @@ class Selection:
             winner_pairs.append(pair)
 
         return winner_pairs
+
+    @staticmethod
+    def fittest(population: list, offspring_count: int):
+        population.sort(reverse=True, key=operator.attrgetter("fitness"))
+        parents_a = population[:offspring_count*2:2]
+        parents_b = population[1:offspring_count*2:2]
+        pairs = [(a, b) for a, b in zip(parents_a, parents_b)]
+        return pairs
 
 
 class Evolution:

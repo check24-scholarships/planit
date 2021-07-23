@@ -1,5 +1,5 @@
 
-SYMBIOSIS = {
+SYMBIOSES = {
     ("Carrot", "Beetroot"): 1,
 
     ("Cabbage", "Carrot"): -1,
@@ -12,11 +12,11 @@ SYMBIOSIS = {
 
 
 def get_symbiosis_score(plant_a, plant_b):
-    score = SYMBIOSIS.get((plant_a, plant_b), None)
+    score = SYMBIOSES.get((plant_a, plant_b), None)
     if score is not None:
         return score
 
-    score = SYMBIOSIS.get((plant_b, plant_a), None)
+    score = SYMBIOSES.get((plant_b, plant_a), None)
     if score is not None:
         return score
 
