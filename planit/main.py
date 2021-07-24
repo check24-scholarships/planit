@@ -1,6 +1,10 @@
 
 import genetic.plan_optimizer as optimizer
 from genetic.plantdata import visualize_symbioses
+from ui.ui import run_app
+
+
+run_app()
 
 
 def table_to_plan(table):
