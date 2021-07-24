@@ -1,12 +1,11 @@
 
 import random
-from dataclasses import dataclass
 
 from .genetic_algorithm import Evolution, Individual
 from . import plantdata
 
 from tabulate import tabulate
-from tqdm import tqdm, trange
+from tqdm import trange
 
 
 # WIP, a lot is still going to change
