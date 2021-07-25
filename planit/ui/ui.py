@@ -4,11 +4,11 @@ import math
 import re
 from itertools import zip_longest
 
-from standard_types import *
 from .scrollable_canvas import ScrollableCanvas
 from .syntax_highlighted_text import SyntaxHighlightedText
 
-from genetic import plan_optimizer
+from ..standard_types import *
+from ..genetic import plan_optimizer
 
 
 class Cell:
