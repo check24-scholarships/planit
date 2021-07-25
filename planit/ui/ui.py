@@ -72,6 +72,11 @@ class App:
     def __init__(self):
         self.root = tk.Tk()
 
+        self.toolbar = tk.Frame(self.root)
+        self.toolbar.pack(side=tk.TOP, fill=tk.X)
+        optimize_button = tk.Button(self.toolbar, text="Optimize", command=self.parse_input)
+        optimize_button.pack(side=tk.LEFT)
+
         self.plant_list = SyntaxHighlightedText(self.root, width=20, font="Arial 12")
         self.plant_list.pack(side=tk.LEFT, fill=tk.Y)
 
@@ -101,8 +106,6 @@ class App:
         beet.canvas.bind("<ButtonRelease-3>", lambda e: beet.on_resize(None))
         beet.canvas.bind("<B1-Motion>", add_cell)
         beet.canvas.bind("<B3-Motion>", remove_cell)
-
-        self.root.after(10000, self.parse_input)
 
     def parse_input(self):
         text = self.plant_list.get_text()
