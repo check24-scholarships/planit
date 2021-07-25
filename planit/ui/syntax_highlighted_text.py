@@ -52,12 +52,14 @@ class SyntaxHighlightedText (tk.Text):
             for match in re.finditer(pattern, text):
                 start_idx = match.start()
 
-                consume(text[last_idx:start_idx])
+                text_leading_up_to_match = text[last_idx:start_idx]
+                consume(text_leading_up_to_match)
                 start_pos = cursor_to_str()
 
-                consume(match.group(0))
+                matched_text = match.group(0)
+                consume(matched_text)
                 end_pos = cursor_to_str()
-                last_idx = start_idx + len(match.group(0))
+                last_idx = start_idx + len(matched_text)
 
                 self.tag_add(tag, start_pos, end_pos)
 
