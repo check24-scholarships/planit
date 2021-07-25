@@ -3,8 +3,8 @@ import tkinter as tk
 
 
 class ScrollableCanvas(tk.Frame):
-    def __init__(self, root, scroll_start_event="<ButtonPress-1>", scroll_move_event="<B1-Motion>"):
-        super(ScrollableCanvas, self).__init__(root)
+    def __init__(self, root, scroll_start_event="<ButtonPress-1>", scroll_move_event="<B1-Motion>", **kwargs):
+        super(ScrollableCanvas, self).__init__(root, **kwargs)
 
         self.canvas = tk.Canvas(self)
         self.scrollbar_x = tk.Scrollbar(self, orient=tk.HORIZONTAL, command=self.canvas.xview)
@@ -31,7 +31,7 @@ class ScrollableCanvas(tk.Frame):
     def on_scroll_move(self, event):
         self.canvas.scan_dragto(event.x, event.y, gain=1)
 
-    def on_resize(self, event):
+    def on_resize(self, event=None):
         bbox = self.canvas.bbox(tk.ALL)
 
         p = self.padding
