@@ -2,21 +2,24 @@ import requests
 from bs4 import BeautifulSoup
 import re
 from typing import List
+from dataclasses import dataclass
 
 
+@dataclass()
 class PlantEntry:
     """
     A Class representing a crawled Plant entry from Wikipedia.
     """
-    def __init__(self, common_name: str, scientific_name: str, helps: str, helped_by: str, attracts: str,
-                 repels_distracts: str, avoid: str):
-        self.common_name = common_name
-        self.scientific_name = scientific_name
-        self.helps = helps
-        self.helped_by = helped_by
-        self.attracts = attracts
-        self.repels_distracts = repels_distracts
-        self.avoid = avoid
+
+    common_name: str
+    scientific_name: str
+
+    helps: str
+    helped_by: str
+
+    attracts: str
+    repels_distracts: str
+    avoid: str
 
 
 class Crawler:
