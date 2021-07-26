@@ -6,66 +6,10 @@ from itertools import zip_longest
 
 from .scrollable_canvas import ScrollableCanvas
 from .syntax_highlighted_text import SyntaxHighlightedText
+from .beet_view import BeetView
 
 from ..standard_types import *
 from ..genetic import plan_optimizer
-
-
-class Cell:
-    def __init__(self, bbox: BBox, canvas: tk.Canvas):
-        self.background = canvas.create_rectangle(*bbox, fill="grey50")
-
-    def delete(self, canvas: tk.Canvas):
-        canvas.delete(self.background)
-
-
-class BeetView (ScrollableCanvas):
-    def __init__(self, root):
-        super(BeetView, self).__init__(root, scroll_start_event="<ButtonPress-2>", scroll_move_event="<B2-Motion>")
-
-        self.cells_by_pos = {}
-
-        self.canvas.create_oval(-10, -10, 10, 10, fill="grey90", width=0)
-
-        self.cell_size = 100
-        self.padding = 200
-
-    def add_cell(self, pos, resize=True):
-        if pos in self.cells_by_pos:
-            return
-
-        self.cells_by_pos[pos] = Cell(self.get_cell_bbox(pos), self.canvas)
-        if resize:
-            self.on_resize(None)
-
-    def delete_cell(self, pos, resize=True):
-        if pos not in self.cells_by_pos:
-            return
-
-        self.cells_by_pos[pos].delete(self.canvas)
-        del self.cells_by_pos[pos]
-        if resize:
-            self.on_resize(None)
-
-    def get_cell(self, pos):
-        return self.cells_by_pos[pos]
-
-    def get_cells_by_pos(self):
-        return self.cells_by_pos
-
-    def get_cell_bbox(self, pos):
-        return BBox(
-            *self.cell_pos_to_xy(pos),
-            *self.cell_pos_to_xy((pos[0]+1, pos[1]+1)))
-
-    def cell_pos_to_xy(self, pos):
-        return pos[0] * self.cell_size, -pos[1] * self.cell_size
-
-    def xy_to_cell_pos(self, x, y):
-        return math.floor(x / self.cell_size), math.floor(- y / self.cell_size)
-
-    def screen_xy_to_cell_pos(self, x, y):
-        return self.xy_to_cell_pos(self.canvas.canvasx(x), self.canvas.canvasy(y))
 
 
 class App:
@@ -93,7 +37,7 @@ class App:
             beet.canvas.coords(cursor, *beet.get_cell_bbox(beet.screen_xy_to_cell_pos(event.x, event.y)))
 
         def add_cell(event):
-            beet.add_cell(beet.screen_xy_to_cell_pos(event.x, event.y), False)
+            beet.add_empty_cell(beet.screen_xy_to_cell_pos(event.x, event.y), False)
 
         def remove_cell(event):
             beet.delete_cell(beet.screen_xy_to_cell_pos(event.x, event.y), False)
