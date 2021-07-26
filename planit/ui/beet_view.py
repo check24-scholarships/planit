@@ -15,12 +15,33 @@ class Cell:
         self.is_movable = True
 
         self.background = None
+        self.movable_pattern = None
+        self.text = None
 
     def draw(self, bbox: BBox, canvas: tk.Canvas):
-        self.background = canvas.create_rectangle(*bbox, fill="grey50")
+        self.background = canvas.create_rectangle(*bbox, fill="grey50", width=2)
+
+        cx = bbox.x0 + (bbox.x1 - bbox.x0) / 2
+        cy = bbox.y0 + (bbox.y1 - bbox.y0) / 2
+
+        if self.plant is not None and not self.is_joker:
+            self.text = canvas.create_text(cx, cy, text=str(self.plant), justify=tk.CENTER)
+
+        if self.is_joker:
+            self.text = canvas.create_text(cx, cy, text="?", justify=tk.CENTER, font=("Monospace", 20))
+
+        if self.is_movable:
+            self.movable_pattern = canvas.create_rectangle(bbox.x0+5, bbox.y0-5, bbox.x1-5, bbox.y1+5, dash=(10, 5), width=2)
 
     def clear(self, canvas: tk.Canvas):
-        canvas.delete(self.background)
+        def safe_delete(tag):
+            if tag is None:
+                return
+            canvas.delete(tag)
+
+        safe_delete(self.background)
+        safe_delete(self.text)
+        safe_delete(self.movable_pattern)
 
 
 class BeetView (ScrollableCanvas):
@@ -58,6 +79,14 @@ class BeetView (ScrollableCanvas):
 
         if resize:
             self.on_resize(None)
+
+    def swap_cells(self, pos_a: Position, pos_b: Position):
+        a = self.get_cell(pos_a)
+        b = self.get_cell(pos_b)
+
+        self.cells_by_pos[pos_a], self.cells_by_pos[pos_b] = b, a
+        self._redraw_cell(a, pos_b)
+        self._redraw_cell(b, pos_a)
 
     def get_cell(self, pos: Position) -> Cell:
         return self.cells_by_pos[pos]
