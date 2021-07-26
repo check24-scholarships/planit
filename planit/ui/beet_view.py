@@ -17,7 +17,7 @@ class Cell:
         self.background = None
 
     def draw(self, bbox: BBox, canvas: tk.Canvas):
-        canvas.create_rectangle(*bbox, fill="grey50")
+        self.background = canvas.create_rectangle(*bbox, fill="grey50")
 
     def clear(self, canvas: tk.Canvas):
         canvas.delete(self.background)
