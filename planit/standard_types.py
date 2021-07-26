@@ -4,5 +4,8 @@ from collections import namedtuple
 
 
 Position = typing.Tuple[int, int]
-Plant = str
+
+# Empty / No plants are None
+Plant = typing.Union[str, None]
+
 BBox = namedtuple("BBox", ("x0", "y0", "x1", "y1"))
