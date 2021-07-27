@@ -55,6 +55,14 @@ class Toolbar (tk.Frame, SegmentedControl[str]):
         button = tk.Button(self, text=text, command=action)
         button.pack(side=tk.RIGHT)
 
+    def add_spacer(self):
+        spacer = tk.Label(self, text="|", width=3)
+        spacer.pack(side=tk.LEFT)
+
+    @property
+    def tool(self) -> str:
+        return self.selected_button
+
 
 if __name__ == '__main__':
     root = tk.Tk()
