@@ -113,19 +113,28 @@ class BeetView (ScrollableCanvas):
     # Methods for setting a cell's data
 
     def set_plant(self, pos: Position, plant: Plant, redraw=True):
-        cell = self.get_cell(pos)
+        cell = self.cells_by_pos.get(pos, None)
+        if cell is None:
+            return
+
         cell.plant = plant
         if redraw:
             self._redraw_cell(cell, pos)
 
     def set_joker(self, pos: Position, is_joker: bool, redraw=True):
-        cell = self.get_cell(pos)
+        cell = self.cells_by_pos.get(pos, None)
+        if cell is None:
+            return
+
         cell.is_joker = is_joker
         if redraw:
             self._redraw_cell(cell, pos)
 
     def set_movable(self, pos: Position, is_movable: bool, redraw=True):
-        cell = self.get_cell(pos)
+        cell = self.cells_by_pos.get(pos, None)
+        if cell is None:
+            return
+
         cell.is_movable = is_movable
         if redraw:
             self._redraw_cell(cell, pos)
