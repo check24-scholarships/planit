@@ -1,6 +1,7 @@
+import sys
 import requests
 from bs4 import BeautifulSoup
-from data_formatter import format_columns
+from data_formatter import DataFormatter
 from typing import List
 from dataclasses import dataclass
 
@@ -27,6 +28,7 @@ class Crawler:
     """
     def __init__(self):
         self._url = "https://en.wikipedia.org/wiki/List_of_companion_plants"
+        self._formatter = DataFormatter()
 
     def crawl_all_plant_tables(self) -> List[PlantEntry]:
         """
@@ -37,7 +39,7 @@ class Crawler:
         for table in soup.find_all("tbody")[:5]:  # The 5 first tables are the only ones we need.
             for row in table.find_all("tr")[2:]:  # skip the header rows.
                 # [:-1] skips the 'Comments' column.
-                columns = format_columns(row.find_all("td")[:-1])
+                columns = self._formatter.format_columns(row.find_all("td")[:-1])
                 # the columns are empty and need to be skipped if the header table row repeats itself.
                 if not columns:
                     continue
@@ -48,7 +50,11 @@ class Crawler:
         """
         send a GET requests to the website and return a BeautifulSoup Object created with the response.
         """
-        r = requests.get(self._url)
+        try:
+            r = requests.get(self._url)
+        except requests.exceptions.ConnectionError:
+            # TODO: handle exception
+            sys.exit(1)
         soup = BeautifulSoup(r.text, "html.parser")
         return soup
 
@@ -56,4 +62,4 @@ class Crawler:
 if __name__ == '__main__':
     crawler = Crawler()
     for entry in crawler.crawl_all_plant_tables():
-        print(entry.common_name + ": " + str(entry.helped_by))
+        print(entry.common_name + ": " + str(entry.repels_distracts))
