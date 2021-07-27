@@ -1,14 +1,12 @@
 
 import tkinter as tk
-import math
 import re
 from itertools import zip_longest
 
-from .scrollable_canvas import ScrollableCanvas
 from .syntax_highlighted_text import SyntaxHighlightedText
 from .beet_view import BeetView
+from .toolbar import Toolbar
 
-from ..standard_types import *
 from ..genetic import plan_optimizer
 
 
@@ -16,10 +14,9 @@ class App:
     def __init__(self):
         self.root = tk.Tk()
 
-        self.toolbar = tk.Frame(self.root)
+        self.toolbar = Toolbar(self.root)
         self.toolbar.pack(side=tk.TOP, fill=tk.X)
-        optimize_button = tk.Button(self.toolbar, text="Optimize", command=self.parse_input)
-        optimize_button.pack(side=tk.LEFT)
+        self.toolbar.add_action("Optimise", self.optimize_input)
 
         self.plant_list = SyntaxHighlightedText(self.root, width=20, font="Arial 12")
         self.plant_list.pack(side=tk.LEFT, fill=tk.Y)
@@ -31,27 +28,29 @@ class App:
         beet.pack(expand=True, fill=tk.BOTH)
         self.beet = beet
 
-        cursor = beet.canvas.create_rectangle(0, 0, 0, 0)
+        self.cursor = beet.canvas.create_rectangle(0, 0, 0, 0)
 
-        def show_cursor(event):
-            beet.canvas.coords(cursor, *beet.get_cell_bbox(beet.screen_xy_to_cell_pos(event.x, event.y)))
-
-        def add_cell(event):
-            beet.add_empty_cell(beet.screen_xy_to_cell_pos(event.x, event.y), False)
-
-        def remove_cell(event):
-            beet.delete_cell(beet.screen_xy_to_cell_pos(event.x, event.y), False)
-
-        beet.canvas.bind("<Motion>", show_cursor)
-
-        beet.canvas.bind("<ButtonPress-1>", add_cell)
+        beet.canvas.bind("<Motion>", self.move_cursor_in_beet)
+        beet.canvas.bind("<ButtonPress-1>", self.add_cell)
         beet.canvas.bind("<ButtonRelease-1>", lambda e: beet.on_resize(None))
-        beet.canvas.bind("<ButtonPress-3>", remove_cell)
+        beet.canvas.bind("<ButtonPress-3>", self.remove_cell)
         beet.canvas.bind("<ButtonRelease-3>", lambda e: beet.on_resize(None))
-        beet.canvas.bind("<B1-Motion>", add_cell)
-        beet.canvas.bind("<B3-Motion>", remove_cell)
+        beet.canvas.bind("<B1-Motion>", self.add_cell)
+        beet.canvas.bind("<B3-Motion>", self.remove_cell)
 
-    def parse_input(self):
+    def add_cell(self, event):
+        self.beet.add_empty_cell(self.beet.screen_xy_to_cell_pos(event.x, event.y), False)
+
+    def remove_cell(self, event):
+        self.beet.delete_cell(self.beet.screen_xy_to_cell_pos(event.x, event.y), False)
+
+    def move_cursor_in_beet(self, event):
+        # Move the cursor rectangle
+        self.beet.canvas.coords(
+            self.cursor,
+            *self.beet.get_cell_bbox(self.beet.screen_xy_to_cell_pos(event.x, event.y)))
+
+    def optimize_input(self):
         text = self.plant_list.get_text()
         lines = filter(None, (line.strip() for line in text.split("\n")))
 
