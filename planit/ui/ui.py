@@ -1,57 +1,122 @@
 
 import tkinter as tk
-import math
 import re
+import typing
 from itertools import zip_longest
 
-from .scrollable_canvas import ScrollableCanvas
 from .syntax_highlighted_text import SyntaxHighlightedText
 from .beet_view import BeetView
+from .toolbar import Toolbar
 
-from ..standard_types import *
 from ..genetic import plan_optimizer
+
+
+class Tools:
+    MOVE = "Move"
+
+    # Left click for the first option and right click to quickly access the second option
+    ADD_CELL = "AddCell"
+    ADD_PLANT = "DrawPlant"
+
+    MARK_AS_JOKER = "MarkAsJoker"
+    MARK_AS_MOVABLE = "MarkAsMovable"
 
 
 class App:
     def __init__(self):
         self.root = tk.Tk()
+        self.root.title("Planit")
 
-        self.toolbar = tk.Frame(self.root)
+        self.toolbar = Toolbar(self.root)
         self.toolbar.pack(side=tk.TOP, fill=tk.X)
-        optimize_button = tk.Button(self.toolbar, text="Optimize", command=self.parse_input)
-        optimize_button.pack(side=tk.LEFT)
+
+        self.toolbar.add_button(Tools.MOVE, "Move")
+        self.toolbar.add_spacer()
+        self.toolbar.add_button(Tools.ADD_CELL, "Add Cell")
+        self.toolbar.add_button(Tools.ADD_PLANT, "Add Plant")
+        self.toolbar.add_spacer()
+        self.toolbar.add_button(Tools.MARK_AS_MOVABLE, "Movable")
+        self.toolbar.add_button(Tools.MARK_AS_JOKER, "Joker")
+
+        self.toolbar.add_action("Optimise", self.optimize_input)
 
         self.plant_list = SyntaxHighlightedText(self.root, width=20, font="Arial 12")
         self.plant_list.pack(side=tk.LEFT, fill=tk.Y)
 
+        # Highlight the 2 in "2x Carrot"
         self.plant_list.highlight(r"\d+(?=x)", underline=True, font="Monospace 12 bold")
+        # Highlight the x in "2x Carrot"
         self.plant_list.highlight(r"(?<=\d)x", font="Monospace 10", foreground="#aaa")
 
         beet = BeetView(self.root)
         beet.pack(expand=True, fill=tk.BOTH)
         self.beet = beet
 
-        cursor = beet.canvas.create_rectangle(0, 0, 0, 0)
+        self.cursor = beet.canvas.create_rectangle(0, 0, 0, 0)
 
-        def show_cursor(event):
-            beet.canvas.coords(cursor, *beet.get_cell_bbox(beet.screen_xy_to_cell_pos(event.x, event.y)))
+        beet.canvas.bind("<Motion>", self.move_cursor_in_beet)
 
-        def add_cell(event):
-            beet.add_empty_cell(beet.screen_xy_to_cell_pos(event.x, event.y), False)
-
-        def remove_cell(event):
-            beet.delete_cell(beet.screen_xy_to_cell_pos(event.x, event.y), False)
-
-        beet.canvas.bind("<Motion>", show_cursor)
-
-        beet.canvas.bind("<ButtonPress-1>", add_cell)
+        beet.canvas.bind("<ButtonPress-1>", self.on_lmb_action)
+        beet.canvas.bind("<B1-Motion>", self.on_lmb_action)
         beet.canvas.bind("<ButtonRelease-1>", lambda e: beet.on_resize(None))
-        beet.canvas.bind("<ButtonPress-3>", remove_cell)
-        beet.canvas.bind("<ButtonRelease-3>", lambda e: beet.on_resize(None))
-        beet.canvas.bind("<B1-Motion>", add_cell)
-        beet.canvas.bind("<B3-Motion>", remove_cell)
 
-    def parse_input(self):
+        beet.canvas.bind("<ButtonPress-3>", self.on_rmb_action)
+        beet.canvas.bind("<B3-Motion>", self.on_rmb_action)
+        beet.canvas.bind("<ButtonRelease-3>", lambda e: beet.on_resize(None))
+
+    def add_cell(self, event):
+        self.beet.add_empty_cell(self.beet.screen_xy_to_cell_pos(event.x, event.y), False)
+
+    def remove_cell(self, event):
+        self.beet.delete_cell(self.beet.screen_xy_to_cell_pos(event.x, event.y), False)
+
+    def mark_as_joker(self, event, is_joker):
+        pos = self.beet.screen_xy_to_cell_pos(event.x, event.y)
+        self.beet.set_joker(pos, is_joker)
+
+    def mark_as_movable(self, event, is_movable):
+        pos = self.beet.screen_xy_to_cell_pos(event.x, event.y)
+        self.beet.set_movable(pos, is_movable)
+
+    def move_cursor_in_beet(self, event):
+        # Move the cursor rectangle
+        self.beet.canvas.coords(
+            self.cursor,
+            *self.beet.get_cell_bbox(self.beet.screen_xy_to_cell_pos(event.x, event.y)))
+
+    def _run_tool_action(self, event, actions_by_tool: typing.Dict[str, typing.Callable[[], None]]):
+        tool = self.toolbar.tool
+        action = actions_by_tool.get(tool, None)
+
+        if action is None:
+            return
+
+        action(event)
+
+    def on_lmb_action(self, event):
+        self.move_cursor_in_beet(event)
+
+        actions_by_tool = {
+            Tools.MOVE: None,
+            Tools.ADD_CELL: self.add_cell,
+            Tools.MARK_AS_JOKER: lambda e: self.mark_as_joker(e, True),
+            Tools.MARK_AS_MOVABLE: lambda e: self.mark_as_movable(e, True)
+        }
+
+        self._run_tool_action(event, actions_by_tool)
+
+    def on_rmb_action(self, event):
+        self.move_cursor_in_beet(event)
+
+        actions_by_tool = {
+            Tools.ADD_CELL: self.remove_cell,
+            Tools.MARK_AS_JOKER: lambda e: self.mark_as_joker(e, False),
+            Tools.MARK_AS_MOVABLE: lambda e: self.mark_as_movable(e, False)
+        }
+
+        self._run_tool_action(event, actions_by_tool)
+
+    def optimize_input(self):
         text = self.plant_list.get_text()
         lines = filter(None, (line.strip() for line in text.split("\n")))
 
