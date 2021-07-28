@@ -22,6 +22,7 @@ class PlantEntry:
     avoid: set
 
 
+# TODO: add logging
 class Crawler:
     """
     The Webcrawler Class.
@@ -38,6 +39,7 @@ class Crawler:
         soup = self._get_soup()
         for table in soup.find_all("tbody")[:5]:  # The 5 first tables are the only ones we need.
             for row in table.find_all("tr")[2:]:  # skip the header rows.
+                # TODO: maybe use threading?
                 # [:-1] skips the 'Comments' column.
                 columns = self._formatter.format_columns(row.find_all("td")[:-1])
                 # the columns are empty and need to be skipped if the header table row repeats itself.
@@ -62,4 +64,11 @@ class Crawler:
 if __name__ == '__main__':
     crawler = Crawler()
     for entry in crawler.crawl_all_plant_tables():
-        print(entry.common_name + ": " + str(entry.repels_distracts))
+        print(entry.common_name)
+        print(entry.scientific_name)
+        print(entry.helps)
+        print(entry.helped_by)
+        print(entry.attracts)
+        print(entry.repels_distracts)
+        print(entry.avoid)
+        print()

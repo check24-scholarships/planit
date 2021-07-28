@@ -5,3 +5,5 @@ tabulate>=0.8.9
 requests>=2.24.0
 bs4>=4.9.1
 beautifulsoup4>=4.8.2
+
+spacy>=3.1.1
