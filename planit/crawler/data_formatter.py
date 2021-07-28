@@ -1,12 +1,11 @@
 import re
-from typing import Union
 import spacy
-from concurrent.futures import ThreadPoolExecutor
-import time
+from typing import Union
 
 
 class DataFormatter:
     def __init__(self):
+        # TODO: include in requirements.txt
         self._nlp = spacy.load("en_core_web_sm")
 
     def format_columns(self, columns: list) -> list:
@@ -21,22 +20,16 @@ class DataFormatter:
         """
         returns the columns list but with plain text instead of html code.
         """
-        return [self._remove_footnotes_and_examples(column.text.strip()) for column in columns if column]
-
-    def _format_column_entry(self, column_entry: str) -> str:
-        """
-        apply text formatting with string.
-        """
-        column_entry = self._remove_footnotes_and_examples(column_entry)
-        return column_entry
+        return [self._remove_footnotes_and_examples(column.text.strip()) for column in columns]
 
     def _remove_footnotes_and_examples(self, column_entry: str) -> str:
         """
         The regular expression removes square brackets and their contents (Wikipedia footnotes) as well as regular brackets
         and their contents (Examples).
+        The square brackets are replaced with a ',' because sometimes it was forgotten in the article. :(
         """
         # maybe ...(re.sub(r"\[(.*?)]", ",", column_entry)) check example in wiki: Nasturtium
-        return re.sub(r"\((.*?)\)", "", re.sub(r"\[(.*?)]", "", column_entry))
+        return re.sub(r"\((.*?)\)", "", re.sub(r"\[(.*?)]", ",", column_entry))
 
     def _format_column_entry_strings(self, columns: list) -> list:
         """
@@ -44,27 +37,45 @@ class DataFormatter:
         """
         new_columns = self._lemmatize_names(columns[:2])
         for column in columns[2:]:
-            new_columns.append(self._split_column(column))
+            new_columns.append(self._split_column_entries_to_sets(column))
+        new_columns[2:] = self._lemmatize_sets(new_columns[2:])
         return new_columns
 
     def _lemmatize_names(self, names: list) -> list:
         """
-        calls the _lemmatize_name for the two columns (common name and scientific name).
+        calls _lemmatize_word method for the two columns (common name, scientific name).
         """
-        with ThreadPoolExecutor(max_workers=2) as executor:
-            running_threads = [executor.submit(self._lemmatize_name, name) for name in names]
-        return [thread.result() for thread in running_threads]
+        return [self._lemmatize_word(name) for name in names]
 
-    def _lemmatize_name(self, name: str) -> str:
+    def _lemmatize_sets(self, columns: list) -> list:
         """
-        turns the nouns singular
+        calls _lemmatize_word for each word in a list of sets (Helps, Helped by, Attracts, -Repels/+distracts, Avoid)
         """
-        print(name)
-        return " ".join([word.lemma_ for word in self._nlp(name)]).replace(" , ", ", ")
+        # if the column value is None and therefore not a set it doesn't call _lemmatize_word() but instead just inserts
+        # None in the final list.
+        return [set(self._lemmatize_word(entry) for entry in column) if column is not None else None for column in columns]
 
-    def _split_column(self, column: str) -> Union[set, None]:
+    def _lemmatize_word(self, word: str) -> str:
         """
-        splits the column string on multiple different separators.
+        turns nouns singular
+        """
+        return self._replace_joined_punctuation(
+            " ".join([word.lemma_ if word.pos_ == "NOUN" else word.text for word in self._nlp(word.lower())]))
+
+    def _replace_joined_punctuation(self, word: str) -> str:
+        """
+        fixes the joined string that spacy returns.
+        """
+        return word.replace(" , ", ", ")\
+            .replace(" 's ", "'s ")\
+            .replace(" . ", ". ")\
+            .replace(" .", ".")\
+            .replace(" - ", "-")
+
+    # TODO: maybe only return empty set if column is empty?
+    def _split_column_entries_to_sets(self, column: str) -> Union[set, None]:
+        """
+        splits the column string on multiple different separators and return them as a set or return None if column empty.
         """
         # If an empty string is passed return None
         if not column:
@@ -74,8 +85,8 @@ class DataFormatter:
             column = column.replace(separator, ",")
         return self._strip_entries(column.split(","))
 
-    def _strip_entries(self, entry: list) -> set:
+    def _strip_entries(self, entries: list) -> set:
         """
-        strips all list entries and returns the entries as a set.
+        strips all list entries and returns the entries as a set. Removes all empty strings as well.
         """
-        return set(entry.strip().rstrip(".").strip("-") for entry in entry)
+        return set(entry.strip().rstrip(".").strip("-").strip('"') for entry in entries if entry)
