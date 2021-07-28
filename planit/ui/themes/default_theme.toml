@@ -1,0 +1,25 @@
+
+[app_style]
+    root_background  = {}
+    input_text = { background = "#fff", foreground = "black", font = "Arial 12" }
+
+[toolbar_style]
+    button = { relief = "solid", bd = 0, highlightthickness = 0 }
+    button_selected   = { background = "#0af", foreground = "white" }
+    button_deselected = { background = "#ccc", foreground = "black" }
+
+    action_button_style = { background = "#fa0" }
+
+    spacer_style     = { background = "#ddd" }
+    background_style = { background = "#ddd" }
+
+[beet_view_style]
+    canvas = {}
+    center_circle = { fill = "grey90", width = 0 }
+    cursor = { outline = "black" }
+
+[beet_view_cell_style]
+    background = { fill = "#7a6", width = 2}
+    movable_pattern = { width = 2, dash = [10, 5] }
+    plant_text = {}
+    joker_text = { font = "Monospace 20"}

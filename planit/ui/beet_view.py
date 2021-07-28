@@ -1,7 +1,7 @@
-
 import tkinter as tk
 import math
 
+from .theme import theme
 from .scrollable_canvas import ScrollableCanvas
 from ..standard_types import *
 
@@ -19,19 +19,22 @@ class Cell:
         self.text = None
 
     def draw(self, bbox: BBox, canvas: tk.Canvas):
-        self.background = canvas.create_rectangle(*bbox, fill="grey50", width=2)
+        self.background = canvas.create_rectangle(*bbox, **theme.beet_view_cell_style.background)
 
         cx = bbox.x0 + (bbox.x1 - bbox.x0) / 2
         cy = bbox.y0 + (bbox.y1 - bbox.y0) / 2
 
         if self.plant is not None and not self.is_joker:
-            self.text = canvas.create_text(cx, cy, text=str(self.plant), justify=tk.CENTER)
+            self.text = canvas.create_text(cx, cy, text=str(self.plant), justify=tk.CENTER,
+                                           **theme.beet_view_cell_style.plant_text)
 
         if self.is_joker:
-            self.text = canvas.create_text(cx, cy, text="?", justify=tk.CENTER, font=("Monospace", 20))
+            self.text = canvas.create_text(cx, cy, text="?", justify=tk.CENTER,
+                                           **theme.beet_view_cell_style.joker_text)
 
         if self.is_movable:
-            self.movable_pattern = canvas.create_rectangle(bbox.x0+5, bbox.y0-5, bbox.x1-5, bbox.y1+5, dash=(10, 5), width=2)
+            self.movable_pattern = canvas.create_rectangle(bbox.x0 + 5, bbox.y0 - 5, bbox.x1 - 5, bbox.y1 + 5,
+                                                           **theme.beet_view_cell_style.movable_pattern)
 
     def clear(self, canvas: tk.Canvas):
         def safe_delete(tag):
@@ -44,13 +47,14 @@ class Cell:
         safe_delete(self.movable_pattern)
 
 
-class BeetView (ScrollableCanvas):
+class BeetView(ScrollableCanvas):
     def __init__(self, root):
-        super(BeetView, self).__init__(root, scroll_start_event="<ButtonPress-2>", scroll_move_event="<B2-Motion>")
+        super(BeetView, self).__init__(root, scroll_start_event="<ButtonPress-2>", scroll_move_event="<B2-Motion>",
+                                       **theme.beet_view_style.canvas)
 
         self.cells_by_pos: typing.Dict[Position, Cell] = {}
 
-        self.canvas.create_oval(-10, -10, 10, 10, fill="grey90", width=0)
+        self.canvas.create_oval(-10, -10, 10, 10, **theme.beet_view_style.center_circle)
 
         self.cell_size = 100
         self.padding = 200
@@ -99,7 +103,7 @@ class BeetView (ScrollableCanvas):
     def get_cell_bbox(self, pos: Position) -> BBox:
         return BBox(
             *self.cell_pos_to_xy(pos),
-            *self.cell_pos_to_xy((pos[0]+1, pos[1]+1)))
+            *self.cell_pos_to_xy((pos[0] + 1, pos[1] + 1)))
 
     def cell_pos_to_xy(self, pos: Position):
         return pos[0] * self.cell_size, -pos[1] * self.cell_size

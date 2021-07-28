@@ -4,9 +4,9 @@ import tkinter as tk
 
 class ScrollableCanvas(tk.Frame):
     def __init__(self, root, scroll_start_event="<ButtonPress-1>", scroll_move_event="<B1-Motion>", **kwargs):
-        super(ScrollableCanvas, self).__init__(root, **kwargs)
+        super(ScrollableCanvas, self).__init__(root, **{**kwargs, "background": "#eee"})
 
-        self.canvas = tk.Canvas(self)
+        self.canvas = tk.Canvas(self, **kwargs, bd=0, highlightthickness=0)
         self.scrollbar_x = tk.Scrollbar(self, orient=tk.HORIZONTAL, command=self.canvas.xview)
         self.scrollbar_y = tk.Scrollbar(self, orient=tk.VERTICAL, command=self.canvas.yview)
 
