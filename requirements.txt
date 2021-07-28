@@ -13,3 +13,6 @@ toml>=0.10.2
 requests>=2.24.0
 bs4>=4.9.1
 beautifulsoup4>=4.8.2
+
+# Text processing
+spacy>=3.1.1
