@@ -56,6 +56,12 @@ class Plan (Individual):
         width = max(x for (x, y) in self.movable_positions)
         height = max(y for (x, y) in self.movable_positions)
 
+        offset_x = min(x for (x, y) in self.movable_positions)
+        offset_y = min(y for (x, y) in self.movable_positions)
+
+        width -= offset_x
+        height -= offset_y
+
         # Create the table filled with empty strings
         table = []
         for y in range(height + 1):
@@ -63,8 +69,14 @@ class Plan (Individual):
 
         # Fill the table
         for pos, plant in self.plants_by_pos.items():
-            table[pos[1]][pos[0]] = plant
+            x, y = pos
+            x -= offset_x
+            y -= offset_y
+            table[y][x] = plant
 
+        # Rows with a higher index (-> higher y) will be shown further down the on screen which is not desirable.
+        # => Flip it
+        table = reversed(table)
         return tabulate(table)
 
 
