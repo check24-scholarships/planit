@@ -120,12 +120,15 @@ class App:
         self._run_tool_action(event, actions_by_tool)
 
     def optimize_input(self):
+        # Extract the plants from the input string
+
         text = self.plant_list.get_text()
         lines = filter(None, (line.strip() for line in text.split("\n")))
 
         plants = []
 
         for line in lines:
+            # E.g. "3x Carrot" => count = "3", name = "Carrot"
             match = re.match(r"(?P<count>\d+)x\s+(?P<name>.+)", line)
             if not match: continue
 
@@ -134,11 +137,15 @@ class App:
 
             plants.extend([name] * count)
 
+        # Create the inputs for the optimizer
         positions = list(self.beet.get_cells_by_pos().keys())
         plants_by_pos = {pos: plant for pos, plant in zip_longest(positions, plants, fillvalue=None)}
 
+        print(plants_by_pos)
+        print(positions)
         plan = plan_optimizer.Plan(plants_by_pos, positions)
-        plan = plan_optimizer.optimize(plan)
+        plan = plan_optimizer.optimize(plan, 500)
+        print(plan.fitness)
         print(plan)
 
 
