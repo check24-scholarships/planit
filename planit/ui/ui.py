@@ -7,6 +7,7 @@ from itertools import zip_longest
 from .syntax_highlighted_text import SyntaxHighlightedText
 from .beet_view import BeetView
 from .toolbar import Toolbar
+from .theme import theme
 
 from ..genetic import plan_optimizer
 
@@ -40,7 +41,8 @@ class App:
 
         self.toolbar.add_action("Optimise", self.optimize_input)
 
-        self.plant_list = SyntaxHighlightedText(self.root, width=20, font="Arial 12")
+        self.plant_list = SyntaxHighlightedText(
+            self.root, width=20, bd=0, highlightthickness=0, **theme.app_style.input_text)
         self.plant_list.pack(side=tk.LEFT, fill=tk.Y)
 
         # Highlight the 2 in "2x Carrot"
@@ -52,7 +54,7 @@ class App:
         beet.pack(expand=True, fill=tk.BOTH)
         self.beet = beet
 
-        self.cursor = beet.canvas.create_rectangle(0, 0, 0, 0)
+        self.cursor = beet.canvas.create_rectangle(0, 0, 0, 0, **theme.beet_view_style.cursor)
 
         beet.canvas.bind("<Motion>", self.move_cursor_in_beet)
 
@@ -66,6 +68,7 @@ class App:
 
     def add_cell(self, event):
         self.beet.add_empty_cell(self.beet.screen_xy_to_cell_pos(event.x, event.y), False)
+        self.beet.canvas.tag_raise(self.cursor)
 
     def remove_cell(self, event):
         self.beet.delete_cell(self.beet.screen_xy_to_cell_pos(event.x, event.y), False)
