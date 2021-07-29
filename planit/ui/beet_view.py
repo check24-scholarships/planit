@@ -46,6 +46,21 @@ class Cell:
         safe_delete(self.text)
         safe_delete(self.movable_pattern)
 
+    def to_dict(self) -> dict:
+        return {
+            "plant": self.plant,
+            "is_movable": self.is_movable,
+            "is_joker": self.is_joker
+        }
+
+    @classmethod
+    def from_dict(cls, d) -> "Cell":
+        cell = cls()
+        cell.plant = d["plant"]
+        cell.is_movable = d["is_movable"]
+        cell.is_joker = d["is_joker"]
+        return cell
+
 
 class BeetView(ScrollableCanvas):
     def __init__(self, root):
@@ -59,6 +74,11 @@ class BeetView(ScrollableCanvas):
         self.cell_size = 100
         self.padding = 200
 
+    # Cell methods
+
+    def _draw_cell(self, cell: Cell, pos: Position):
+        cell.draw(self.get_cell_bbox(pos), self.canvas)
+
     def _redraw_cell(self, cell: Cell, pos: Position):
         cell.clear(self.canvas)
         cell.draw(self.get_cell_bbox(pos), self.canvas)
@@ -68,7 +88,7 @@ class BeetView(ScrollableCanvas):
             return
 
         cell = Cell()
-        cell.draw(self.get_cell_bbox(pos), self.canvas)
+        self._draw_cell(cell, pos)
         self.cells_by_pos[pos] = cell
 
         if resize:
@@ -94,6 +114,12 @@ class BeetView(ScrollableCanvas):
 
     def get_cell(self, pos: Position) -> Cell:
         return self.cells_by_pos[pos]
+
+    def delete_all_cells(self):
+        for cell in self.cells_by_pos.values():
+            cell.clear(self.canvas)
+
+        self.cells_by_pos.clear()
 
     # Cell coordinate helper methods
 
@@ -142,3 +168,26 @@ class BeetView(ScrollableCanvas):
         cell.is_movable = is_movable
         if redraw:
             self._redraw_cell(cell, pos)
+
+    # Save / load
+
+    def save_to_dict(self) -> dict:
+        cells = []
+
+        for pos, cell in self.cells_by_pos.items():
+            cell_data = cell.to_dict()
+            cell_data["pos"] = pos
+            cells.append(cell_data)
+
+        return {
+            "cells": cells
+        }
+
+    def load_from_dict(self, d: dict):
+        self.delete_all_cells()
+
+        for cell_data in d["cells"]:
+            cell = Cell.from_dict(cell_data)
+            pos = cell_data["pos"]
+            self._draw_cell(cell, pos)
+            self.cells_by_pos[pos] = cell
