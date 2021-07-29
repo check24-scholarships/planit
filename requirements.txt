@@ -1,9 +1,18 @@
 
+# Progess bars
 tqdm>=4.61.2
+
+# Table visualisation
 tabulate>=0.8.9
 
+# UI Themes
+dacite>=1.6.0  # Convert dictionaries (->json / toml) to dataclasses
+toml>=0.10.2
+
+# Web crawler / scraper
 requests>=2.24.0
 bs4>=4.9.1
 beautifulsoup4>=4.8.2
 
+# Text processing
 spacy>=3.1.1

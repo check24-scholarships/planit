@@ -15,7 +15,9 @@ class Individual:
         pass
 
     def __repr__(self):
-        if self.fitness is None: return f"(@{id(self)})"
+        if self.fitness is None:
+            return f"(@{id(self)} -> 0)"
+
         return f"(@{id(self)} -> {self.fitness})"
 
     def __str__(self):
