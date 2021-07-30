@@ -11,7 +11,7 @@ T = typing.TypeVar("T")
 class SegmentedControl (typing.Generic[T]):
     def __init__(
             self,
-            change_action: typing.Callable[[], None] = None,
+            change_action: typing.Callable[[str, str], None] = None,
             selected_style: dict = None,
             deselected_style: dict = None):
 
@@ -38,7 +38,7 @@ class SegmentedControl (typing.Generic[T]):
         button.config(**self.selected_style)
 
         if name != self.selected_button and self.change_action is not None:
-            self.change_action()
+            self.change_action(self.selected_button, name)
         self.selected_button = name
 
     def deselect(self, name: T):
@@ -54,11 +54,12 @@ class SegmentedControl (typing.Generic[T]):
 
 
 class Toolbar (tk.Frame, SegmentedControl[str]):
-    def __init__(self, root, **kwargs):
+    def __init__(self, root, change_action=None, **kwargs):
         tk.Frame.__init__(self, root, **kwargs, **theme.toolbar_style.background_style)
 
         SegmentedControl.__init__(
             self,
+            change_action=change_action,
             selected_style=theme.toolbar_style.button_selected,
             deselected_style=theme.toolbar_style.button_deselected)
 

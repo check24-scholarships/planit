@@ -46,6 +46,8 @@ class Cell:
         safe_delete(self.text)
         safe_delete(self.movable_pattern)
 
+        self.background = self.text = self.movable_pattern = None
+
     def to_dict(self) -> dict:
         return {
             "plant": self.plant,
@@ -60,6 +62,9 @@ class Cell:
         cell.is_movable = d["is_movable"]
         cell.is_joker = d["is_joker"]
         return cell
+
+    def __repr__(self):
+        return f"Cell({self.plant})"
 
 
 class BeetView(ScrollableCanvas):
@@ -105,15 +110,32 @@ class BeetView(ScrollableCanvas):
             self.on_resize(None)
 
     def swap_cells(self, pos_a: Position, pos_b: Position):
-        a = self.get_cell(pos_a)
-        b = self.get_cell(pos_b)
+        if pos_a == pos_b:
+            return
 
-        self.cells_by_pos[pos_a], self.cells_by_pos[pos_b] = b, a
-        self._redraw_cell(a, pos_b)
-        self._redraw_cell(b, pos_a)
+        cell_a = self.cells_by_pos.get(pos_a, None)
+        cell_b = self.cells_by_pos.get(pos_b, None)
+
+        # When swapping with an empty cell, the empty cell is a None and therefore won't overwrite
+        # the other cell's origin location => Overwrite (delete) it here for the None cell
+        if cell_a is not None:
+            del self.cells_by_pos[pos_a]
+        if cell_b is not None:
+            del self.cells_by_pos[pos_b]
+
+        if cell_a is not None:
+            self.cells_by_pos[pos_b] = cell_a
+            self._redraw_cell(cell_a, pos_b)
+
+        if cell_b is not None:
+            self.cells_by_pos[pos_a] = cell_b
+            self._redraw_cell(cell_b, pos_a)
 
     def get_cell(self, pos: Position) -> Cell:
         return self.cells_by_pos[pos]
+
+    def has_cell(self, pos: Position) -> bool:
+        return pos in self.cells_by_pos
 
     def delete_all_cells(self):
         for cell in self.cells_by_pos.values():
