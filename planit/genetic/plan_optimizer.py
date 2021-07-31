@@ -50,53 +50,46 @@ class Plan (Individual):
             plants[a], plants[b] = plants[b], plants[a]
 
     def crossover(self, other: "Plan"):
-        # return Plan(dict(self.plants_by_pos), list(self.movable_positions))
-        # Inspired by the Ordered Crossover (OX) operator
-
         positions = list(self.plants_by_pos.keys())
 
-        # 1. Copy a range of plants from self to the new offspring
-
-        gene_start = random.randrange(len(positions))
-        gene_end = random.randrange(len(positions))
-
-        if gene_start > gene_end:
-            gene_start, gene_end = gene_end, gene_start
-
-        gene_from_self = {pos: self.plants_by_pos[pos] for pos in positions[gene_start: gene_end]}
-        offspring = {**gene_from_self}
-
-        # 2. Copy the plants from the `other` plan to the offspring whenever this is possible
-
         total_plant_counts = Counter(self.plants_by_pos.values())
-        current_plant_counts = Counter(gene_from_self.values())
+        current_plant_counts = Counter({plant: 0 for plant in set(self.plants_by_pos.keys())})
 
-        remaining_positions = positions[:gene_start] + positions[gene_end:]
+        offspring_plants = {}
         skipped_positions = []
-        for pos in remaining_positions:
-            plant = other.plants_by_pos[pos]
 
+        def try_insert(pos, plant):
             if current_plant_counts[plant] + 1 > total_plant_counts[plant]:
-                skipped_positions.append(pos)
+                return False
+
+            offspring_plants[pos] = plant
+            current_plant_counts[plant] += 1
+            return True
+
+        # Randomly try to copy one plant from one of the two parent plans to the offspring.
+        # Sometimes this isn't possible because the offspring already has so many plants of that type that
+        # adding another one would exceed the original plant count.
+        for pos in positions:
+            donor_a, donor_b = (self, other) if random.random() > 0.5 else (other, self)
+
+            if try_insert(pos, donor_a.plants_by_pos[pos]):
                 continue
 
-            current_plant_counts[plant] += 1
-            offspring[pos] = plant
+            if try_insert(pos, donor_b.plants_by_pos[pos]):
+                continue
 
-        # 3. When copying from the `other` plan is not possible, copy from the self plan
+            skipped_positions.append(pos)
 
+        # Go over the skipped positions and fill them with a remaining plant that is not yet in the offspring
+        # enough times.
         remaining_plants = []
-        for plant in self.plants_by_pos.values():
-            if current_plant_counts[plant] + 1 > total_plant_counts[plant]:
-                continue
-
-            remaining_plants.append(plant)
-            current_plant_counts[plant] += 1
+        for plant in total_plant_counts.keys():
+            remaining_plants.extend([plant] * (total_plant_counts[plant] - current_plant_counts[plant]))
 
         for pos, plant in zip(skipped_positions, remaining_plants):
-            offspring[pos] = plant
+            offspring_plants[pos] = plant
 
-        return Plan(offspring, list(self.movable_positions))
+        return Plan(offspring_plants, list(self.movable_positions))
 
     def __str__(self):
         width = max(x for (x, y) in self.plants_by_pos.keys())
