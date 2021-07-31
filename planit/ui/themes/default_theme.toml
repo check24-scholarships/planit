@@ -21,8 +21,8 @@
     center_circle = { fill = "grey90", width = 0 }
     cursor = { outline = "black" }
 
-[beet_view_cell]
-    background = { fill = "#7a6", width = 2}
-    movable_pattern = { width = 2, dash = [10, 5] }
-    plant_text = {}
-    joker_text = { font = "Monospace 20"}
+    [beet_view.cell]
+        background = { fill = "#7a6", width = 2}
+        movable_pattern = { width = 2, dash = [10, 5] }
+        plant_text = {}
+        joker_text = { font = "Monospace 20"}
