@@ -18,6 +18,7 @@ class BeetViewStyle:
     canvas: dict
     center_circle: dict
     cursor: dict
+    cell: BeetViewCellStyle
 
 
 @dataclass
@@ -47,7 +48,6 @@ class Theme:
     toolbar: ToolbarStyle
     tools: ToolStyles
     beet_view: BeetViewStyle
-    beet_view_cell: BeetViewCellStyle
 
 
 theme: Theme
