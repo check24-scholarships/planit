@@ -226,11 +226,12 @@ class App:
 
         # Create the inputs for the optimizer
         positions = list(self.beet.get_cells_by_pos().keys())
+        movable_positions = [pos for (pos, cell) in self.beet.get_cells_by_pos().items() if cell.is_movable]
         plants_by_pos = {pos: plant for pos, plant in zip_longest(positions, plants, fillvalue=None)}
 
         print(plants_by_pos)
         print(positions)
-        plan = plan_optimizer.Plan(plants_by_pos, positions)
+        plan = plan_optimizer.Plan(plants_by_pos, movable_positions)
         plan = plan_optimizer.optimize(plan, 500)
         print(plan.fitness)
         print(plan)

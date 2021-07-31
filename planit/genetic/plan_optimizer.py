@@ -8,8 +8,8 @@ from . import plantdata
 from tabulate import tabulate
 from tqdm import trange
 
-
-# WIP, a lot is still going to change
+import typing
+from ..standard_types import *
 
 
 class Plan (Individual):
@@ -50,53 +50,53 @@ class Plan (Individual):
             plants[a], plants[b] = plants[b], plants[a]
 
     def crossover(self, other: "Plan"):
-        # return Plan(dict(self.plants_by_pos), list(self.movable_positions))
-        # Inspired by the Ordered Crossover (OX) operator
+        movable_positions = set(self.movable_positions)
 
-        positions = list(self.plants_by_pos.keys())
+        total_plant_counts = Counter(plant for (pos, plant) in self.plants_by_pos.items() if pos in movable_positions)
+        current_plant_counts = Counter({plant: 0 for plant in total_plant_counts.keys()})
 
-        # 1. Copy a range of plants from self to the new offspring
-
-        gene_start = random.randrange(len(positions))
-        gene_end = random.randrange(len(positions))
-
-        if gene_start > gene_end:
-            gene_start, gene_end = gene_end, gene_start
-
-        gene_from_self = {pos: self.plants_by_pos[pos] for pos in positions[gene_start: gene_end]}
-        offspring = {**gene_from_self}
-
-        # 2. Copy the plants from the `other` plan to the offspring whenever this is possible
-
-        total_plant_counts = Counter(self.plants_by_pos.values())
-        current_plant_counts = Counter(gene_from_self.values())
-
-        remaining_positions = positions[:gene_start] + positions[gene_end:]
+        offspring_plants = {}
         skipped_positions = []
-        for pos in remaining_positions:
-            plant = other.plants_by_pos[pos]
 
+        def try_insert(pos, plant):
             if current_plant_counts[plant] + 1 > total_plant_counts[plant]:
-                skipped_positions.append(pos)
+                return False
+
+            offspring_plants[pos] = plant
+            current_plant_counts[plant] += 1
+            return True
+
+        # 1. Randomly try to copy one plant from one of the two parent plans to the offspring.
+        # Sometimes this isn't possible because the offspring already has so many plants of that type that
+        # adding another one would exceed the original plant count.
+        for pos in movable_positions:
+            donor_a, donor_b = (self, other) if random.random() > 0.5 else (other, self)
+
+            if try_insert(pos, donor_a.plants_by_pos[pos]):
                 continue
 
-            current_plant_counts[plant] += 1
-            offspring[pos] = plant
+            if try_insert(pos, donor_b.plants_by_pos[pos]):
+                continue
 
-        # 3. When copying from the `other` plan is not possible, copy from the self plan
+            skipped_positions.append(pos)
 
+        # 2. Go over the skipped positions and fill them with a remaining plant that is not yet in the offspring
+        # enough times.
         remaining_plants = []
-        for plant in self.plants_by_pos.values():
-            if current_plant_counts[plant] + 1 > total_plant_counts[plant]:
-                continue
-
-            remaining_plants.append(plant)
-            current_plant_counts[plant] += 1
+        for plant in total_plant_counts.keys():
+            remaining_plants.extend([plant] * (total_plant_counts[plant] - current_plant_counts[plant]))
 
         for pos, plant in zip(skipped_positions, remaining_plants):
-            offspring[pos] = plant
+            offspring_plants[pos] = plant
 
-        return Plan(offspring, list(self.movable_positions))
+        # 3. Copy the non-movable plants
+        all_positions = set(self.plants_by_pos.keys())
+        non_movable_positions = all_positions - movable_positions
+
+        for pos in non_movable_positions:
+            offspring_plants[pos] = self.plants_by_pos[pos]
+
+        return Plan(offspring_plants, list(self.movable_positions))
 
     def __str__(self):
         width = max(x for (x, y) in self.plants_by_pos.keys())
@@ -126,25 +126,28 @@ class Plan (Individual):
         return tabulate(table)
 
 
-# Relative positions of the tiles that affect the central tile
+# Relative positions of the tiles that affect the central tile with the weight
+# (x, y, weight)
 AFFECTED_TILES = [
-    (-1, 1),  (0, 1),  (1, 1),
-    (-1, 0),           (1, 0),
-    (-1, -1), (0, -1), (1, -1)
+    (-1,  1, 0.5), (0, 1, 1),  (1,  1, 0.5),
+    (-1,  0, 1),               (1,  0, 1),
+    (-1, -1, 0.5), (0, -1, 1), (1, -1, 0.5)
 ]
+
+AFFECTED_TILES_TOTAL = sum(weight for (x, y, weight) in AFFECTED_TILES)
 
 
 def get_neighbours(plan: Plan, pos):
-    neighbours = []
+    neighbours: typing.List[typing.Tuple[Plant, float]] = []
 
-    for (dx, dy) in AFFECTED_TILES:
+    for (dx, dy, weight) in AFFECTED_TILES:
         neighbour_pos = (pos[0] + dx, pos[1] + dy)
         neighbour = plan.plants_by_pos.get(neighbour_pos, None)
 
         if neighbour is None:
             continue
 
-        neighbours.append(neighbour)
+        neighbours.append((neighbour, weight))
 
     return neighbours
 
@@ -160,9 +163,10 @@ class SymbiosisEvaluator (Evaluator):
         self.positive_weight = positive_weight
         self.negative_weight = negative_weight
 
-    def get_modified_symbiosis_score(self, plant, neighbour) -> float:
+    def get_modified_symbiosis_score(self, plant, neighbour, influence_weight) -> float:
         symbiosis_score = plantdata.get_symbiosis_score(plant, neighbour)
         symbiosis_score *= self.positive_weight if symbiosis_score > 0 else self.negative_weight
+        symbiosis_score *= influence_weight
         return symbiosis_score
 
     def evaluate(self, plan: Plan) -> float:
@@ -175,8 +179,8 @@ class SymbiosisEvaluator (Evaluator):
             non_empty_count += 1
 
             plant_score = sum(
-                self.get_modified_symbiosis_score(plant, neighbour)
-                for neighbour in get_neighbours(plan, pos))
+                self.get_modified_symbiosis_score(plant, neighbour, weight)
+                for neighbour, weight in get_neighbours(plan, pos))
             total_score += plant_score
 
         if non_empty_count == 0:
