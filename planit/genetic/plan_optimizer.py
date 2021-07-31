@@ -9,9 +9,6 @@ from tabulate import tabulate
 from tqdm import trange
 
 
-# WIP, a lot is still going to change
-
-
 class Plan (Individual):
     def __init__(self, plants_by_pos: dict, movable_positions: list):
         self.movable_positions = movable_positions
