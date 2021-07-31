@@ -1,5 +1,5 @@
 
-[app_
+[app]
     root_background  = { background = "grey10" }
     input_text = { background = "#666", foreground = "white", font = "Arial 12" }
 
