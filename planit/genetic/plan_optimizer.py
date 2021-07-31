@@ -8,6 +8,9 @@ from . import plantdata
 from tabulate import tabulate
 from tqdm import trange
 
+import typing
+from ..standard_types import *
+
 
 class Plan (Individual):
     def __init__(self, plants_by_pos: dict, movable_positions: list):
@@ -123,25 +126,28 @@ class Plan (Individual):
         return tabulate(table)
 
 
-# Relative positions of the tiles that affect the central tile
+# Relative positions of the tiles that affect the central tile with the weight
+# (x, y, weight)
 AFFECTED_TILES = [
-    (-1, 1),  (0, 1),  (1, 1),
-    (-1, 0),           (1, 0),
-    (-1, -1), (0, -1), (1, -1)
+    (-1,  1, 0.5), (0, 1, 1),  (1,  1, 0.5),
+    (-1,  0, 1),               (1,  0, 1),
+    (-1, -1, 0.5), (0, -1, 1), (1, -1, 0.5)
 ]
+
+AFFECTED_TILES_TOTAL = sum(weight for (x, y, weight) in AFFECTED_TILES)
 
 
 def get_neighbours(plan: Plan, pos):
-    neighbours = []
+    neighbours: typing.List[typing.Tuple[Plant, float]] = []
 
-    for (dx, dy) in AFFECTED_TILES:
+    for (dx, dy, weight) in AFFECTED_TILES:
         neighbour_pos = (pos[0] + dx, pos[1] + dy)
         neighbour = plan.plants_by_pos.get(neighbour_pos, None)
 
         if neighbour is None:
             continue
 
-        neighbours.append(neighbour)
+        neighbours.append((neighbour, weight))
 
     return neighbours
 
@@ -157,9 +163,10 @@ class SymbiosisEvaluator (Evaluator):
         self.positive_weight = positive_weight
         self.negative_weight = negative_weight
 
-    def get_modified_symbiosis_score(self, plant, neighbour) -> float:
+    def get_modified_symbiosis_score(self, plant, neighbour, influence_weight) -> float:
         symbiosis_score = plantdata.get_symbiosis_score(plant, neighbour)
         symbiosis_score *= self.positive_weight if symbiosis_score > 0 else self.negative_weight
+        symbiosis_score *= influence_weight
         return symbiosis_score
 
     def evaluate(self, plan: Plan) -> float:
@@ -172,8 +179,8 @@ class SymbiosisEvaluator (Evaluator):
             non_empty_count += 1
 
             plant_score = sum(
-                self.get_modified_symbiosis_score(plant, neighbour)
-                for neighbour in get_neighbours(plan, pos))
+                self.get_modified_symbiosis_score(plant, neighbour, weight)
+                for neighbour, weight in get_neighbours(plan, pos))
             total_score += plant_score
 
         if non_empty_count == 0:
