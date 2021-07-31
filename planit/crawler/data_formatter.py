@@ -1,6 +1,5 @@
 import re
 import spacy
-from typing import Union
 
 
 class DataFormatter:
@@ -28,7 +27,6 @@ class DataFormatter:
         and their contents (Examples).
         The square brackets are replaced with a ',' because sometimes it was forgotten in the article. :(
         """
-        # maybe ...(re.sub(r"\[(.*?)]", ",", column_entry)) check example in wiki: Nasturtium
         return re.sub(r"\((.*?)\)", "", re.sub(r"\[(.*?)]", ",", column_entry))
 
     def _format_column_entry_strings(self, columns: list) -> list:
@@ -53,7 +51,7 @@ class DataFormatter:
         """
         # if the column value is None and therefore not a set it doesn't call _lemmatize_word() but instead just inserts
         # None in the final list.
-        return [set(self._lemmatize_word(entry) for entry in column) if column is not None else None for column in columns]
+        return [set(self._lemmatize_word(entry) for entry in column) for column in columns]
 
     def _lemmatize_word(self, word: str) -> str:
         """
@@ -73,13 +71,13 @@ class DataFormatter:
             .replace(" - ", "-")
 
     # TODO: maybe only return empty set if column is empty?
-    def _split_column_entries_to_sets(self, column: str) -> Union[set, None]:
+    def _split_column_entries_to_sets(self, column: str) -> set:
         """
         splits the column string on multiple different separators and return them as a set or return None if column empty.
         """
         # If an empty string is passed return None
         if not column:
-            return None
+            return set()
         separators = [" and ", " or ", ";", "/", ". "]
         for separator in separators:
             column = column.replace(separator, ",")
