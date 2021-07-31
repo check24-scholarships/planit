@@ -55,16 +55,16 @@ class SegmentedControl (typing.Generic[T]):
 
 class Toolbar (tk.Frame, SegmentedControl[str]):
     def __init__(self, root, change_action=None, **kwargs):
-        tk.Frame.__init__(self, root, **kwargs, **theme.toolbar_style.background_style)
+        tk.Frame.__init__(self, root, **kwargs, **theme.toolbar.background)
 
         SegmentedControl.__init__(
             self,
             change_action=change_action,
-            selected_style=theme.toolbar_style.button_selected,
-            deselected_style=theme.toolbar_style.button_deselected)
+            selected_style=theme.toolbar.button_selected,
+            deselected_style=theme.toolbar.button_deselected)
 
     def add_button(self, name: str, text: str):
-        button = tk.Button(self, text=text, **{**theme.toolbar_style.button, **theme.toolbar_style.button_deselected})
+        button = tk.Button(self, text=text, **{**theme.toolbar.button, **theme.toolbar.button_deselected})
         button.pack(side=tk.LEFT, ipadx=5, ipady=2, padx=(10, 0), pady=5)
 
         SegmentedControl.add_button(self, name, button)
@@ -74,11 +74,11 @@ class Toolbar (tk.Frame, SegmentedControl[str]):
 
     def add_action(self, text: str, action: typing.Callable[[], None]):
         button = tk.Button(self, text=text, command=action,
-                           **{**theme.toolbar_style.button, **theme.toolbar_style.action_button_style})
+                           **{**theme.toolbar.button, **theme.toolbar.action_button})
         button.pack(side=tk.RIGHT, ipadx=5, ipady=2, padx=(0, 10), pady=5)
 
     def add_spacer(self):
-        spacer = tk.Label(self, width=2, **theme.toolbar_style.spacer_style)
+        spacer = tk.Label(self, width=2, **theme.toolbar.spacer)
         spacer.pack(side=tk.LEFT)
 
     @property
