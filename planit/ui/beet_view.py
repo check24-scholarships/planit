@@ -19,22 +19,22 @@ class Cell:
         self.text = None
 
     def draw(self, bbox: BBox, canvas: tk.Canvas):
-        self.background = canvas.create_rectangle(*bbox, **theme.beet_view_cell_style.background)
+        self.background = canvas.create_rectangle(*bbox, **theme.beet_view.cell.background)
 
         cx = bbox.x0 + (bbox.x1 - bbox.x0) / 2
         cy = bbox.y0 + (bbox.y1 - bbox.y0) / 2
 
         if self.plant is not None and not self.is_joker:
             self.text = canvas.create_text(cx, cy, text=str(self.plant), justify=tk.CENTER,
-                                           **theme.beet_view_cell_style.plant_text)
+                                           **theme.beet_view.cell.plant_text)
 
         if self.is_joker:
             self.text = canvas.create_text(cx, cy, text="?", justify=tk.CENTER,
-                                           **theme.beet_view_cell_style.joker_text)
+                                           **theme.beet_view.cell.joker_text)
 
         if self.is_movable:
             self.movable_pattern = canvas.create_rectangle(bbox.x0 + 5, bbox.y0 - 5, bbox.x1 - 5, bbox.y1 + 5,
-                                                           **theme.beet_view_cell_style.movable_pattern)
+                                                           **theme.beet_view.cell.movable_pattern)
 
     def clear(self, canvas: tk.Canvas):
         def safe_delete(tag):
@@ -70,11 +70,11 @@ class Cell:
 class BeetView(ScrollableCanvas):
     def __init__(self, root):
         super(BeetView, self).__init__(root, scroll_start_event="<ButtonPress-2>", scroll_move_event="<B2-Motion>",
-                                       **theme.beet_view_style.canvas)
+                                       **theme.beet_view.canvas)
 
         self.cells_by_pos: typing.Dict[Position, Cell] = {}
 
-        self.canvas.create_oval(-10, -10, 10, 10, **theme.beet_view_style.center_circle)
+        self.canvas.create_oval(-10, -10, 10, 10, **theme.beet_view.center_circle)
 
         self.cell_size = 100
         self.padding = 200

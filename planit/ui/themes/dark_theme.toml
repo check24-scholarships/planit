@@ -1,25 +1,28 @@
 
-[app_style]
+[app_
     root_background  = { background = "grey10" }
     input_text = { background = "#666", foreground = "white", font = "Arial 12" }
 
-[toolbar_style]
+[toolbar]
     button = { relief = "solid", bd = 0, highlightthickness = 0 }
     button_selected   = { background = "#0af", foreground = "white" }
     button_deselected = { background = "grey40", foreground = "white" }
 
-    action_button_style = { background = "#fa0" }
+    action_button = { background = "#fa0" }
 
-    spacer_style     = { background = "#222" }
-    background_style = { background = "#222" }
+    spacer     = { background = "#222" }
+    background = { background = "#222" }
 
-[beet_view_style]
+[tools]
+    swap_cursor = { outline="white", width=3, dash=[5, 2] }
+
+[beet_view]
     canvas = { background = "#444" }
     center_circle = { fill = "#555", width = 0 }
     cursor = { outline = "white" }
 
-[beet_view_cell_style]
-    background = { fill = "#594", width = 2 }
-    movable_pattern = { width = 2, dash = [10, 5] }
-    plant_text = {}
-    joker_text = { font = "Monospace 20"}
+    [beet_view.cell]
+        background = { fill = "#594", width = 2 }
+        movable_pattern = { width = 2, dash = [10, 5] }
+        plant_text = {}
+        joker_text = { font = "Monospace 20"}
