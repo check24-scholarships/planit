@@ -58,7 +58,7 @@ class SwapTool (Tool):
     def on_lmb_press(self, event):
         self.from_pos = self.beet_view.screen_xy_to_cell_pos(event.x, event.y)
         self.from_cursor = self.beet_view.canvas.create_rectangle(
-            *self.beet_view.get_cell_bbox(self.from_pos), **theme.tool_styles.swap_cursor)
+            *self.beet_view.get_cell_bbox(self.from_pos), **theme.tools.swap_cursor)
 
     def on_lmb_release(self, event):
         self.beet_view.canvas.delete(self.from_cursor)
@@ -143,7 +143,7 @@ class App:
         self.tools_by_name: typing.Dict[str, Tool] = {}
 
         self.plant_list = SyntaxHighlightedText(
-            self.root, width=20, bd=0, highlightthickness=0, **theme.app_style.input_text)
+            self.root, width=20, bd=0, highlightthickness=0, **theme.app.input_text)
         self.plant_list.pack(side=tk.LEFT, fill=tk.Y)
 
         # Highlight the 2 in "2x Carrot"
@@ -155,7 +155,7 @@ class App:
         beet.pack(expand=True, fill=tk.BOTH)
         self.beet = beet
 
-        self.cursor = beet.canvas.create_rectangle(0, 0, 0, 0, **theme.beet_view_style.cursor)
+        self.cursor = beet.canvas.create_rectangle(0, 0, 0, 0, **theme.beet_view.cursor)
 
         beet.canvas.bind("<Motion>", self.move_cursor_in_beet)
 

@@ -31,9 +31,9 @@ class ToolbarStyle:
     button: dict
     button_selected: dict
     button_deselected: dict
-    action_button_style: dict
-    spacer_style: dict
-    background_style: dict
+    action_button: dict
+    spacer: dict
+    background: dict
 
 
 @dataclass
@@ -43,13 +43,14 @@ class ToolStyles:
 
 @dataclass
 class Theme:
-    app_style: AppStyle
-    toolbar_style: ToolbarStyle
-    tool_styles: ToolStyles
-    beet_view_style: BeetViewStyle
-    beet_view_cell_style: BeetViewCellStyle
+    app: AppStyle
+    toolbar: ToolbarStyle
+    tools: ToolStyles
+    beet_view: BeetViewStyle
+    beet_view_cell: BeetViewCellStyle
 
 
+theme: Theme
 themes_folder = os.path.join(os.path.dirname(__file__), "themes")
 
 # Load a theme
