@@ -58,7 +58,7 @@ class SwapTool (Tool):
     def on_lmb_press(self, event):
         self.from_pos = self.beet_view.screen_xy_to_cell_pos(event.x, event.y)
         self.from_cursor = self.beet_view.canvas.create_rectangle(
-            *self.beet_view.get_cell_bbox(self.from_pos), outline="white", width=3, dash=(5, 2))
+            *self.beet_view.get_cell_bbox(self.from_pos), **theme.tool_styles.swap_cursor)
 
     def on_lmb_release(self, event):
         self.beet_view.canvas.delete(self.from_cursor)

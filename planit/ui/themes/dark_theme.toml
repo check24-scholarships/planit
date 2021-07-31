@@ -13,6 +13,9 @@
     spacer_style     = { background = "#222" }
     background_style = { background = "#222" }
 
+[tool_styles]
+    swap_cursor = { outline="white", width=3, dash=[5, 2] }
+
 [beet_view_style]
     canvas = { background = "#444" }
     center_circle = { fill = "#555", width = 0 }

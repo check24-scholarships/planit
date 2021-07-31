@@ -37,9 +37,15 @@ class ToolbarStyle:
 
 
 @dataclass
+class ToolStyles:
+    swap_cursor: dict
+
+
+@dataclass
 class Theme:
     app_style: AppStyle
     toolbar_style: ToolbarStyle
+    tool_styles: ToolStyles
     beet_view_style: BeetViewStyle
     beet_view_cell_style: BeetViewCellStyle
 
@@ -47,6 +53,6 @@ class Theme:
 themes_folder = os.path.join(os.path.dirname(__file__), "themes")
 
 # Load a theme
-with open(os.path.join(themes_folder, "dark_theme.toml"), "r") as theme_file:
+with open(os.path.join(themes_folder, "default_theme.toml"), "r") as theme_file:
     data = toml.load(theme_file)
     theme = dacite.from_dict(Theme, data)
