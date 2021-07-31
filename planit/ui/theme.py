@@ -18,6 +18,7 @@ class BeetViewStyle:
     canvas: dict
     center_circle: dict
     cursor: dict
+    cell: BeetViewCellStyle
 
 
 @dataclass
@@ -31,22 +32,28 @@ class ToolbarStyle:
     button: dict
     button_selected: dict
     button_deselected: dict
-    action_button_style: dict
-    spacer_style: dict
-    background_style: dict
+    action_button: dict
+    spacer: dict
+    background: dict
+
+
+@dataclass
+class ToolStyles:
+    swap_cursor: dict
 
 
 @dataclass
 class Theme:
-    app_style: AppStyle
-    toolbar_style: ToolbarStyle
-    beet_view_style: BeetViewStyle
-    beet_view_cell_style: BeetViewCellStyle
+    app: AppStyle
+    toolbar: ToolbarStyle
+    tools: ToolStyles
+    beet_view: BeetViewStyle
 
 
+theme: Theme
 themes_folder = os.path.join(os.path.dirname(__file__), "themes")
 
 # Load a theme
-with open(os.path.join(themes_folder, "dark_theme.toml"), "r") as theme_file:
+with open(os.path.join(themes_folder, "default_theme.toml"), "r") as theme_file:
     data = toml.load(theme_file)
     theme = dacite.from_dict(Theme, data)
