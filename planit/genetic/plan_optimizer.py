@@ -52,7 +52,7 @@ class Plan (Individual):
     def crossover(self, other: "Plan"):
         movable_positions = set(self.movable_positions)
 
-        total_plant_counts = Counter(plant for (pos, plant) in self.plants_by_pos.items() if pos in movable_positions)
+        total_plant_counts = Counter(self.plants_by_pos[pos] for pos in movable_positions)
         current_plant_counts = Counter({plant: 0 for plant in total_plant_counts.keys()})
 
         offspring_plants = {}
@@ -99,6 +99,9 @@ class Plan (Individual):
         return Plan(offspring_plants, list(self.movable_positions))
 
     def __str__(self):
+        if len(self.plants_by_pos) == 0:
+            return ""
+
         width = max(x for (x, y) in self.plants_by_pos.keys())
         height = max(y for (x, y) in self.plants_by_pos.keys())
 
