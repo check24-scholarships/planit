@@ -33,7 +33,7 @@ class Plan (Individual):
         }
 
     def randomize(self):
-        plants = list(self.plants_by_pos.values())
+        plants = list(self.plants_by_pos[pos] for pos in self.movable_positions)
         random.shuffle(plants)
 
         for pos in self.movable_positions:
