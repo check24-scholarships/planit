@@ -1,28 +1,28 @@
 
 [app]
-    root_background  = { background = "grey10" }
-    input_text = { background = "#666", foreground = "white", font = "Calibri 12" }
+    root_background  = { background = "#121212" }
+    input_text = { background = "#404040", foreground = "white", font = "Calibri 12" }
 
 [toolbar]
     button = { relief = "solid", bd = 0, highlightthickness = 0 }
     button_selected   = { background = "#0af", foreground = "white" }
-    button_deselected = { background = "grey40", foreground = "white" }
+    button_deselected = { background = "#404040", foreground = "white" }
 
     action_button = { background = "#fa0" }
 
-    spacer     = { background = "#222" }
-    background = { background = "#222" }
+    spacer     = { background = "#121212" }
+    background = { background = "#121212" }
 
 [tools]
     swap_cursor = { outline="white", width=3, dash=[5, 2] }
 
 [beet_view]
-    canvas = { background = "#444" }
-    center_circle = { fill = "#555", width = 0 }
+    canvas = { background = "#292929" }
+    center_circle = { fill = "#404040", width = 0 }
     cursor = { outline = "white" }
 
     [beet_view.cell]
         background = { fill = "#594", width = 2 }
         movable_pattern = { width = 2, dash = [10, 5] }
         plant_text = { font = "Calibri 12" }
-        joker_text = { font = "Monospace 20"}
+        joker_text = { font = "Monospace 20" }
