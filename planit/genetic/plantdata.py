@@ -1,4 +1,8 @@
 
+"""
+Mocked plant data
+"""
+
 SYMBIOSES = {
     ("Carrot", "Beetroot"): 1,
     ("Carrot", "Celery"): 1,

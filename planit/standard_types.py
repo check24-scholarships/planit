@@ -1,4 +1,9 @@
 
+"""
+Standard data types that are common to this project.
+"""
+
+
 import typing
 from collections import namedtuple
 

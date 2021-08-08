@@ -14,6 +14,10 @@ from ..standard_types import *
 
 
 class Tool:
+    """
+    The base class of a tool that can be selected by the user.
+    It receives events for the left and right mouse buttons as well as for activation / deactivation.
+    """
     def activate(self):
         pass
 
@@ -46,6 +50,10 @@ class Tool:
 
 
 class SwapTool (Tool):
+    """
+    Tool for swapping two cells.
+    """
+
     def __init__(self, beet_view: BeetView):
         self.from_cursor = None
         self.from_pos = None
@@ -122,6 +130,10 @@ class MarkAsMovableTool (BrushTool):
 
 
 class Tools:
+    """
+    Collection of all tool names.
+    """
+
     MOVE = "Move"
     SWAP = "Swap"
 
@@ -191,6 +203,9 @@ class App:
         self.tools_by_name[to_name].activate()
 
     def _run_tool_action(self, method_name):
+        """
+        Returns a function that, when called, runs the "method_name" method of the active tool.
+        """
         def call_method_on_event(event):
             tool = self.tools_by_name[self.toolbar.selected_button]
             getattr(tool, method_name)(event)
@@ -201,7 +216,7 @@ class App:
         return call_method_on_event
 
     def move_cursor_in_beet(self, event):
-        # Move the cursor rectangle
+        """ Moves the square cursor that indicates which cell is currently under the mouse. """
         self.beet.canvas.coords(
             self.cursor,
             *self.beet.get_cell_bbox(self.beet.screen_xy_to_cell_pos(event.x, event.y)))

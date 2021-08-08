@@ -1,4 +1,9 @@
 
+"""
+Custom tkinter widget for a canvas in which the user can pan, move and scroll.
+"""
+
+
 import tkinter as tk
 
 

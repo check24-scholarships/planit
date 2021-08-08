@@ -1,3 +1,8 @@
+
+"""
+The class that is responsible for drawing and managing a beet (garden plan).
+"""
+
 import tkinter as tk
 import math
 
@@ -9,6 +14,9 @@ import typing
 
 
 class Cell:
+    """
+    Represents and draws one growing cell in a garden.
+    """
     def __init__(self):
         self.plant: Plant = None
         self.is_joker = False
@@ -82,13 +90,16 @@ class BeetView(ScrollableCanvas):
     # Cell methods
 
     def _draw_cell(self, cell: Cell, pos: Position):
+        """ Draws a cell on the canvas. """
         cell.draw(self.get_cell_bbox(pos), self.canvas)
 
     def _redraw_cell(self, cell: Cell, pos: Position):
+        """ Clears a cell and redraws it on the canvas. """
         cell.clear(self.canvas)
         cell.draw(self.get_cell_bbox(pos), self.canvas)
 
     def add_empty_cell(self, pos: Position, resize=True):
+        """ Adds an empty cell to the plan and draws it. """
         if pos in self.cells_by_pos:
             return
 
@@ -100,6 +111,7 @@ class BeetView(ScrollableCanvas):
             self.on_resize(None)
 
     def delete_cell(self, pos: Position, resize=True):
+        """ Removes the cell from the plan and clears it. """
         if pos not in self.cells_by_pos:
             return
 
@@ -110,6 +122,7 @@ class BeetView(ScrollableCanvas):
             self.on_resize(None)
 
     def swap_cells(self, pos_a: Position, pos_b: Position):
+        """ Swaps and redraws two cells in the plan. """
         if pos_a == pos_b:
             return
 
@@ -135,6 +148,7 @@ class BeetView(ScrollableCanvas):
         return self.cells_by_pos[pos]
 
     def has_cell(self, pos: Position) -> bool:
+        """ Returns true when there is a cell at the given position. """
         return pos in self.cells_by_pos
 
     def delete_all_cells(self):
@@ -146,25 +160,33 @@ class BeetView(ScrollableCanvas):
     # Cell coordinate helper methods
 
     def get_cells_by_pos(self) -> typing.Dict[Position, Cell]:
+        """ Returns a dict that maps cell positions to Cell instances. """
         return self.cells_by_pos
 
     def get_cell_bbox(self, pos: Position) -> BBox:
+        """ Returns the canvas bounding box of a cell position. """
         return BBox(
             *self.cell_pos_to_xy(pos),
             *self.cell_pos_to_xy((pos[0] + 1, pos[1] + 1)))
 
-    def cell_pos_to_xy(self, pos: Position):
+    def cell_pos_to_xy(self, pos: Position) -> Position:
+        """ Returns the canvas (x, y) coordinates of a cell. """
         return pos[0] * self.cell_size, -pos[1] * self.cell_size
 
     def xy_to_cell_pos(self, x: int, y: int) -> Position:
+        """ Returns the cell position of a given canvas (x, y) position. """
         return math.floor(x / self.cell_size), math.floor(- y / self.cell_size)
 
     def screen_xy_to_cell_pos(self, x: int, y: int) -> Position:
+        """ Returns the cell position of a give screen (x, y) position. """
         return self.xy_to_cell_pos(self.canvas.canvasx(x), self.canvas.canvasy(y))
 
     # Methods for setting a cell's data
 
     def set_plant(self, pos: Position, plant: Plant, redraw=True):
+        """
+        Sets the plant of the cell at the given cell position if there is a cell there.
+        """
         cell = self.cells_by_pos.get(pos, None)
         if cell is None:
             return
@@ -174,6 +196,9 @@ class BeetView(ScrollableCanvas):
             self._redraw_cell(cell, pos)
 
     def set_joker(self, pos: Position, is_joker: bool, redraw=True):
+        """
+        Sets the joker flag of 1the cell at the given cell position if there is a cell there.
+        """
         cell = self.cells_by_pos.get(pos, None)
         if cell is None:
             return
@@ -183,6 +208,9 @@ class BeetView(ScrollableCanvas):
             self._redraw_cell(cell, pos)
 
     def set_movable(self, pos: Position, is_movable: bool, redraw=True):
+        """
+        Sets the movable flag of 1the cell at the given cell position if there is a cell there.
+        """
         cell = self.cells_by_pos.get(pos, None)
         if cell is None:
             return
