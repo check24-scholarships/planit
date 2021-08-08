@@ -1,4 +1,11 @@
 
+"""
+Theme system for the UI.
+
+Each "block" of the UI has a dataclass that stores the tkinter styling options for it.
+The first time this file is imported, it will read in the theme from the .toml file.
+"""
+
 from dataclasses import dataclass
 import dacite
 import toml

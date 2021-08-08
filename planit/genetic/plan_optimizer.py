@@ -156,23 +156,40 @@ def get_neighbours(plan: Plan, pos):
 
 
 class Evaluator:
-    """Base class of evaluators that compute a fitness score for a plan"""
+    """
+    Base class of evaluators that compute a fitness score for a plan
+    """
     def evaluate(self, plan: Plan) -> float:
         pass
 
 
 class SymbiosisEvaluator (Evaluator):
+    """
+    Evaluator that computes a fitness score based on the the symbioses / anti-symbioses a plant can have
+    """
+
     def __init__(self, positive_weight=1, negative_weight=1):
         self.positive_weight = positive_weight
         self.negative_weight = negative_weight
 
     def get_modified_symbiosis_score(self, plant, neighbour, influence_weight) -> float:
+        """
+        Returns the symbiosis score based on the different weighting options
+        """
         symbiosis_score = plantdata.get_symbiosis_score(plant, neighbour)
         symbiosis_score *= self.positive_weight if symbiosis_score > 0 else self.negative_weight
         symbiosis_score *= influence_weight
         return symbiosis_score
 
     def evaluate(self, plan: Plan) -> float:
+        """
+        Evaluates the total symbiosis score (fitness) of a plan.
+
+        The formula:
+        * total score = average symbiosis score of each plant
+        * symbiosis score of a plant = average of the weighted symbiosis score with each neighbour
+        """
+
         total_score = 0
         non_empty_count = 0
 

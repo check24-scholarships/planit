@@ -1,4 +1,8 @@
 
+"""
+Custom tkinter widgets and systems for handling toolbar-like systems.
+"""
+
 import tkinter as tk
 import typing
 
@@ -73,6 +77,10 @@ class Toolbar (tk.Frame, SegmentedControl[str]):
             self.select(name)
 
     def add_action(self, text: str, action: typing.Callable[[], None]):
+        """
+        Actions are buttons that appear on the right hand side of the toolbar and can
+        only be clicked, not permanently selected.
+        """
         button = tk.Button(self, text=text, command=action,
                            **{**theme.toolbar.button, **theme.toolbar.action_button})
         button.pack(side=tk.RIGHT, ipadx=5, ipady=2, padx=(0, 10), pady=5)

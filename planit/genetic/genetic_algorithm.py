@@ -3,15 +3,22 @@ import operator
 
 
 class Individual:
+    """
+    Represents one solution in a population.
+    """
+
     fitness: int
 
     def randomize(self):
+        """
+        Initialises the individual with a random solution.
+        """
         pass
 
     def mutate(self):
         pass
 
-    def crossover(self, other):
+    def crossover(self, other) -> "Individual":
         pass
 
     def __repr__(self):
@@ -25,6 +32,10 @@ class Individual:
 
 
 class Selection:
+    """
+    Different selection methods that define which individuals should be bred.
+    """
+
     @staticmethod
     def tournament(population: list, offspring_count: int, contenders_per_round: int = 2):
         contenders = set(population)
@@ -91,15 +102,20 @@ class Evolution:
             self._add_random_individual()
 
     def _add_random_individual(self):
+        """
+        Adds a new individual to the population that is first randomized.
+        """
         individual = self.individual_class(**self.init_params)
         individual.randomize(**self.randomize_params)
         individual.fitness = self.fitness_func(individual)
         self.population.append(individual)
 
     def _sort_population(self):
+        """ Sorts the population based on the fitness scores from low to high. """
         self.population = sorted(self.population, key=operator.attrgetter("fitness"))
 
     def _kill_weakest(self, n):
+        """ Removes the weakest n individuals from the population. """
         self._sort_population()
         del self.population[:n]
 
@@ -118,8 +134,10 @@ class Evolution:
         self._kill_weakest(len(offsprings))
 
     def get_best(self):
+        """ Returns the individual with the highest fitness. """
         return self.get_best_n(1)[0]
 
     def get_best_n(self, n):
+        """ Returns the n best individuals with the highest fitness values. """
         self._sort_population()
         return self.population[len(self.population) - n:]

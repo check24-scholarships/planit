@@ -1,4 +1,8 @@
 
+"""
+Custom tkinter widget for a Text widget that automatically highlights certain patterns.
+"""
+
 import tkinter as tk
 import re
 
