@@ -6,14 +6,34 @@ class DataFormatter:
     def __init__(self):
         # TODO: include in requirements.txt
         self._nlp = spacy.load("en_core_web_sm")
+        # name formatting
         self._lemmatized_name_format_pattern = re.compile(r" (/|'s |, ) ?")
+        self._names_to_be_replaced = {
+            re.compile(r"^(bean), (.+)"): r"\2 \1", re.compile(r"brassicas"): "brassica",
+            re.compile(r".*/maize$"): "corn", re.compile(r"(.*) or aubergine"): r"\1",
+            re.compile(r"savoury"): "savory",
+            re.compile(r" and rutabaga|cilantro/"): ""
+        }
+        # set entry formatting
         self._square_brackets_pattern = re.compile(r"\[[^]]*]")
         self._brackets_pattern = re.compile(r"\([^)]*\)")
-        self._split_pattern = re.compile(r"[,;.&\/]\s?|\s?\band\s|\sor\s")
+        self._unique_text_mistake = re.compile(r" \((?:[^,]+,){3}")
+        self._split_pattern = re.compile(r"[,;.&/]\s?|\s?\band\s|\sor\s")
         self._lemmatized_set_entry_format_pattern = re.compile(r" (-|'s ) ?")
-        self._set_entries_to_be_deleted = {"together", "almost everything", "plant with many blossom"}
-        self._set_entries_to_be_replaced = {re.compile(r".*lady bug$"): "ladybug", re.compile(r"^most "): "",
-                                            re.compile(r"^such as "): "", re.compile(r"^mixture of "): "", }
+        self._set_entries_to_be_deleted = {"together", "almost everything", "plant with many blossom", "many other"}
+        self._set_entries_to_be_replaced = {
+            re.compile(r"lady bug"): "ladybug", re.compile(r"^aster.*"): "aster",
+            re.compile(r"radishes"): "radish", re.compile(r"brassicas"): "brassica",
+            re.compile(r"green onion with chinese cabbage"): "onion", re.compile(r"maize"): "corn",
+            re.compile(r"aubergine"): "eggplant", re.compile(r"savoury"): "savory",
+            re.compile(r"many type of grass including kentucky bluegrass"): "grass",
+            re.compile(r"cilantro"): "coriander", re.compile(r"avoid any member of the allium family"): "allium",
+            re.compile(r"hoverflie"): "hoverfly", re.compile(r"butterflies"): "butterfly",
+            re.compile(r"apple tree"): "apple",
+            re.compile(r"(?:most|such as|mixture of|beneficial for|a variety of|other) |"
+                       r" because.*|(?:.* )?especially |.*many (?:other )?|"
+                       r"plant (?:which are prone to|that attracts) "): ""
+        }
 
     def format_columns(self, columns: list) -> list:
         """
@@ -31,27 +51,35 @@ class DataFormatter:
         """
         returns the columns list but with plain text instead of html code.
         """
-        return [column.text.strip() for column in columns]
+        return [column.text.strip().lower() for column in columns]
 
     def _format_name(self, name: str) -> str:
         name = self._lemmatize_word(name)
         name = self._format_lemmatized_name(name)
+        name = self._manually_replace_names(name)
         return name
 
     def _lemmatize_word(self, word: str) -> str:
         """
         turns nouns singular
         """
-        return " ".join([word.lemma_ if word.pos_ == "NOUN" else word.text for word in self._nlp(word.lower())])
+        return " ".join([word.lemma_ if word.pos_ == "NOUN" else word.text for word in self._nlp(word)])
 
     def _format_lemmatized_name(self, name: str) -> str:
         return self._lemmatized_name_format_pattern.sub(r"\1", name)
+
+    def _manually_replace_names(self, name: str) -> str:
+        for pattern, replacement in self._names_to_be_replaced.items():
+            if pattern.search(name):
+                return pattern.sub(replacement, name)
+        return name
 
     def _format_set_entries(self, columns: list) -> list:
         """
         formats the entries of helps, helped by, attracts ,-Repels/+distracts and avoid strings to sets.
         """
         columns = self._remove_footnotes_and_examples(columns)
+        columns = self._remove_unique_text_mistake(columns)
         columns = self._split_column_entries_to_set(columns)
         columns = self._strip_set_entries(columns)
         columns = self._lemmatize_set_entries(columns)
@@ -66,6 +94,10 @@ class DataFormatter:
         The square brackets are replaced with a ',' because sometimes it was forgotten in the article. :(
         """
         return [self._brackets_pattern.sub(",", self._square_brackets_pattern.sub(",", column)) for column in columns]
+
+    def _remove_unique_text_mistake(self, columns: list) -> list:
+        columns[0] = self._unique_text_mistake.sub(",", columns[0])
+        return columns
 
     def _split_column_entries_to_set(self, columns: list) -> list:
         """
@@ -97,22 +129,23 @@ class DataFormatter:
                 for column in columns]
 
     def _manually_format_set_entries(self, columns: list) -> list:
-        columns = self._delete_set_entries(columns)
-        columns = self._replace_set_entries(columns)
+        columns = self._manually_delete_set_entries(columns)
+        columns = self._manually_replace_set_entries(columns)
         return columns
 
-    def _delete_set_entries(self, columns: list) -> list:
+    def _manually_delete_set_entries(self, columns: list) -> list:
         return [column ^ self._set_entries_to_be_deleted.intersection(column) for column in columns]
 
-    def _replace_set_entries(self, columns: list) -> list:
+    def _manually_replace_set_entries(self, columns: list) -> list:
         new_columns = []
         for column in columns:
             new_entries = set()
             for entry in column:
                 for pattern, replacement in self._set_entries_to_be_replaced.items():
-                    if pattern.match(entry) is not None:
+                    if pattern.search(entry):
                         entry = pattern.sub(replacement, entry)
-                        break
                 new_entries.add(entry)
             new_columns.append(new_entries)
         return new_columns
+
+    # TODO: handle insects: at entry --> 'carrot'/'borage'
