@@ -1,5 +1,6 @@
 import re
 import spacy
+from typing import List
 
 
 class DataFormatter:
@@ -54,6 +55,9 @@ class DataFormatter:
         return [column.text.strip().lower() for column in columns]
 
     def _format_name(self, name: str) -> str:
+        """
+        applies all name format methods to a name string.
+        """
         name = self._lemmatize_word(name)
         name = self._format_lemmatized_name(name)
         name = self._manually_replace_names(name)
@@ -66,17 +70,26 @@ class DataFormatter:
         return " ".join([word.lemma_ if word.pos_ == "NOUN" else word.text for word in self._nlp(word)])
 
     def _format_lemmatized_name(self, name: str) -> str:
+        """
+         replaces the badly formatted name strings of spacy:
+         "alice / bob" -> "alice/bob"
+         "alice 's apple" -> "alice's apple"
+         "alice , bob" -> "alice, bob"
+        """
         return self._lemmatized_name_format_pattern.sub(r"\1", name)
 
     def _manually_replace_names(self, name: str) -> str:
+        """
+         replaces the name when it matches with the key of the dict _names_to_be_replaced with the appropriate value
+        """
         for pattern, replacement in self._names_to_be_replaced.items():
             if pattern.search(name):
                 return pattern.sub(replacement, name)
         return name
 
-    def _format_set_entries(self, columns: list) -> list:
+    def _format_set_entries(self, columns: list) -> List[set]:
         """
-        formats the entries of helps, helped by, attracts ,-Repels/+distracts and avoid strings to sets.
+        formats the entries of helps, helped by, attracts ,-Repels/+distracts and avoid.
         """
         columns = self._remove_footnotes_and_examples(columns)
         columns = self._remove_unique_text_mistake(columns)
@@ -89,17 +102,20 @@ class DataFormatter:
 
     def _remove_footnotes_and_examples(self, columns: list) -> list:
         """
-        The regular expression removes square brackets and their contents (Wikipedia footnotes) as well as regular brackets
-        and their contents (Examples).
-        The square brackets are replaced with a ',' because sometimes it was forgotten in the article. :(
+        The regular expression removes square brackets and their contents (Wikipedia footnotes) as well as regular
+        brackets and their contents (Examples).
+        The brackets are replaced with a ',' because sometimes it was forgotten in the article. :(
         """
         return [self._brackets_pattern.sub(",", self._square_brackets_pattern.sub(",", column)) for column in columns]
 
     def _remove_unique_text_mistake(self, columns: list) -> list:
+        """
+        formats a single instance where a bracket was opened but not closed.
+        """
         columns[0] = self._unique_text_mistake.sub(",", columns[0])
         return columns
 
-    def _split_column_entries_to_set(self, columns: list) -> list:
+    def _split_column_entries_to_set(self, columns: list) -> List[set]:
         """
         split the column entries on the following values: ",", ";", ".", "/", "and", "or".
         return a list with sets containing the seperated column entries.
@@ -112,31 +128,51 @@ class DataFormatter:
                 new_columns.append(set(self._split_pattern.split(column)))
         return new_columns
 
-    def _strip_set_entries(self, columns: list) -> list:
+    def _strip_set_entries(self, columns: List[set]) -> List[set]:
         """
         returns a list of sets witch contain stripped values. if the value is "" it is skipped.
         """
         return [set(entry.strip('-" ') for entry in column if entry) for column in columns]
 
-    def _lemmatize_set_entries(self, columns: list) -> list:
+    def _lemmatize_set_entries(self, columns: List[set]) -> List[set]:
         """
         calls _lemmatize_word for each word in a list of sets (Helps, Helped by, Attracts, -Repels/+distracts, Avoid)
         """
         return [set(self._lemmatize_word(entry) for entry in column) for column in columns]
 
-    def _format_lemmatized_set_entries(self, columns: list) -> list:
+    def _format_lemmatized_set_entries(self, columns: List[set]) -> List[set]:
+        """
+        replaces the badly formatted joined strings of spacy:
+        "alice - bob" -> "alice-bob"
+        "alice 's apple" -> "alice's apple"
+
+        Also only adds an entry to the set if it is not empty: ''
+        """
         return [set(self._lemmatized_set_entry_format_pattern.sub(r"\1", entry) for entry in column if entry)
                 for column in columns]
 
-    def _manually_format_set_entries(self, columns: list) -> list:
+    def _manually_format_set_entries(self, columns: List[set]) -> List[set]:
+        """
+        performs manual editing of irregular set entries.
+        """
         columns = self._manually_delete_set_entries(columns)
         columns = self._manually_replace_set_entries(columns)
         return columns
 
-    def _manually_delete_set_entries(self, columns: list) -> list:
+    def _manually_delete_set_entries(self, columns: List[set]) -> List[set]:
+        """
+        returns a list of sets which do not contain any stings in the set: _set_entries_to_be_deleted.
+        """
         return [column ^ self._set_entries_to_be_deleted.intersection(column) for column in columns]
 
-    def _manually_replace_set_entries(self, columns: list) -> list:
+    def _manually_replace_set_entries(self, columns: List[set]) -> List[set]:
+        """
+        returns a list of sets with replaced/deleted entries if an entry matches the keys of the dict
+        _set_entries_to_be_replaced. The replacement value is the appropriate value of the dict.
+
+        The break statement after a pattern is successfully matched is replaced because sometimes an entry can have
+        multiple matches. --> "most brassicas" matches twice with two different keys.
+        """
         new_columns = []
         for column in columns:
             new_entries = set()
