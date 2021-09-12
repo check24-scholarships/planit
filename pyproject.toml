@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "planit"
+version = "0.0.1"
+description = "Desktop application for planning the cultivation of vegetable plants."
+authors = ["1n5pire, jakeiridion, kosmat"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+tabulate = "^0.8.9"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
