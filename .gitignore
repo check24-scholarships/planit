@@ -6,3 +6,6 @@
 
 # Compiled bytecode files
 __pycache__/
+
+# Virtual environment
+venv/
