@@ -11,8 +11,9 @@ toml>=0.10.2
 
 # Web crawler / scraper
 requests>=2.24.0
-bs4>=4.9.1
+bs4
 beautifulsoup4>=4.8.2
 
 # Text processing
+# You still have to run python -m spacy download en_core_web_sm
 spacy>=3.1.1
