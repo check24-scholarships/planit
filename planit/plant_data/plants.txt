@@ -1,0 +1,100 @@
+# List of plant common names
+allium
+asparagus
+bush bean
+pole bean
+fava bean
+beet
+brassica
+broccoli
+brussels sprout
+cabbage
+carrot
+cauliflower
+celery
+chard
+corn
+cucumber
+cucurbit
+eggplant
+kohlrabi
+leek
+legume
+lettuce
+mustard
+nightshade
+okra
+onion
+parsnip
+pea
+pepper
+potato
+pumpkin
+radish
+soybean
+spinach
+squash
+sweet potato
+tomato
+turnip
+apple
+apricot
+blueberry
+fruit tree
+grape
+melon
+passion fruit
+pear
+strawberry
+anise
+basil
+borage
+caraway
+catnip
+chamomile
+chervil
+chive
+coriander
+dill
+fennel
+flax
+garlic
+hyssop
+lavender
+lemon grass
+lovage
+oregano
+parsley
+peppermint
+rosemary
+sage
+southernwood
+spearmint
+stinging nettle
+summer savory
+tarragon
+thyme
+wormwood
+yarrow
+alyssum
+baby's breath
+bee balm
+californian poppy
+dianthu
+geranium
+larkspur
+lupin
+marigold
+nasturtium
+pansy
+petunia
+phacelia
+rose
+sunflower
+swan plant
+sweet pea
+tansy
+zinnia
+alfalfa
+peanut
+walnut tree
