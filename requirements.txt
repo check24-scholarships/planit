@@ -9,6 +9,9 @@ tabulate>=0.8.9
 dacite>=1.6.0  # Convert dictionaries (-> json / toml) to dataclasses
 toml>=0.10.2
 
+# Plant search feature in UI
+fuzzyset2>=0.1.1
+
 # Web crawler / scraper
 requests>=2.24.0
 bs4
