@@ -4,7 +4,8 @@ Data management with `sqlite3`.
 
 Provided functions are
 
-- `add_plant(alias: str, common_name: str) -> None`,
+- `add_plant(alias: str, common_name: str) -> bool`,
+- `add_symbiosis_score(plant_a: str, plant_b: str, score: int) -> bool`,
 - `get_all_plants() -> Dict[str, str]` and
 - `get_symbiosis_score(plant_a: str, plant_b: str) -> int`.
 
@@ -23,10 +24,12 @@ from typing import Dict
 model.add_plant('a', 'a')
 model.add_plant('b', 'b')
 
+# Add symbiosis score
+model.add_symbiosis_score('a', 'b', 1)
+
 # Get all plants
 all_plants: Dict[str, str] = model.get_all_plants()
 
 # Get the symbiosis score of plant a and b
 symbiosis_score_a_b: int = model.get_symbiosis_score('a', 'b')
 ```
-
