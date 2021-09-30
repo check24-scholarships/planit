@@ -6,7 +6,7 @@ Custom tkinter widgets and systems for handling toolbar-like systems.
 import tkinter as tk
 import typing
 
-from .theme import theme
+from ..theme import theme
 
 
 T = typing.TypeVar("T")

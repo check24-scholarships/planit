@@ -7,7 +7,7 @@ import tkinter as tk
 import math
 
 from .theme import theme
-from .scrollable_canvas import ScrollableCanvas
+from .widgets.scrollable_canvas import ScrollableCanvas
 from ..standard_types import *
 
 import typing
