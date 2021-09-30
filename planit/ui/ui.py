@@ -1,13 +1,9 @@
 
 import tkinter as tk
-import re
-import typing
-from itertools import zip_longest
 
-from .syntax_highlighted_text import SyntaxHighlightedText
 from .plant_search import PlantSearchFrame
 from .beet_view import BeetView
-from .toolbar import Toolbar
+from .widgets.toolbar import Toolbar
 from .theme import theme
 
 from ..genetic import plan_optimizer
