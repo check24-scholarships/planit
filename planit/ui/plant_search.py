@@ -50,21 +50,30 @@ class PlantSearchFrame (tk.Frame):
         self.search_results = tk.Listbox(self)
         self.search_engine = PlantSearchSession()
 
-        self.search_bar.pack()
-        self.search_results.pack(expand=True, fill=tk.BOTH)
-
         self.selected_plant = None
+
+        self.search_bar.pack(fill=tk.X)
+        self.search_results.pack(expand=True, fill=tk.BOTH)
+        self.search_results.bind("<<ListboxSelect>>", self.on_select_plant)
 
     def on_keystroke(self, new_text):
         search_term = new_text
-
-        if not search_term:
-            return
 
         results = self.search_engine.find(search_term)
         self.search_results.delete(0, tk.END)
         for res in results:
             self.search_results.insert(tk.END, res)
+
+    def on_select_plant(self, event):
+        selection = event.widget.curselection()
+
+        if not selection:
+            self.selected_plant = None
+            return
+
+        row = selection[0]
+        plant = event.widget.get(row)
+        self.selected_plant = plant
 
 
 if __name__ == '__main__':

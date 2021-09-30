@@ -5,6 +5,7 @@ import typing
 from itertools import zip_longest
 
 from .syntax_highlighted_text import SyntaxHighlightedText
+from .plant_search import PlantSearchFrame
 from .beet_view import BeetView
 from .toolbar import Toolbar
 from .theme import theme
@@ -129,6 +130,21 @@ class MarkAsMovableTool (BrushTool):
         self.beet_view.set_movable(pos, False)
 
 
+class DrawPlantTool (BrushTool):
+    def __init__(self, app: "App"):
+        self.app = app
+        super(DrawPlantTool, self).__init__(app.beet)
+
+    def _lmb_cell_action(self, pos: Position):
+        plant = self.app.plant_search.selected_plant
+        if not plant:
+            return
+        self.beet_view.set_plant(pos, plant)
+
+    def _rmb_cell_action(self, pos: Position):
+        self.beet_view.set_plant(pos, None)
+
+
 class Tools:
     """
     Collection of all tool names.
@@ -154,14 +170,8 @@ class App:
         self.toolbar.pack(side=tk.TOP, fill=tk.X)
         self.tools_by_name: typing.Dict[str, Tool] = {}
 
-        self.plant_list = SyntaxHighlightedText(
-            self.root, width=20, bd=0, highlightthickness=0, **theme.app.input_text)
-        self.plant_list.pack(side=tk.LEFT, fill=tk.Y)
-
-        # Highlight the 2 in "2x Carrot"
-        self.plant_list.highlight(r"\d+(?=x)", underline=True, font="Monospace 12 bold")
-        # Highlight the x in "2x Carrot"
-        self.plant_list.highlight(r"(?<=\d)x", font="Monospace 10", foreground="#aaa")
+        self.plant_search = PlantSearchFrame(self.root)
+        self.plant_search.pack(side=tk.LEFT, fill=tk.Y)
 
         beet = BeetView(self.root)
         beet.pack(expand=True, fill=tk.BOTH)
@@ -185,9 +195,11 @@ class App:
 
         add_tool(Tools.MOVE, "Move", Tool())
         add_tool(Tools.SWAP, "Swap", SwapTool(self.beet))
+
         self.toolbar.add_spacer()
         add_tool(Tools.ADD_CELL, "Add Cell", AddCellTool(self.beet))
-        add_tool(Tools.ADD_PLANT, "Add Plant", Tool())
+        add_tool(Tools.ADD_PLANT, "Add Plant", DrawPlantTool(self))
+
         self.toolbar.add_spacer()
         add_tool(Tools.MARK_AS_MOVABLE, "Movable", MarkAsMovableTool(self.beet))
         add_tool(Tools.MARK_AS_JOKER, "Joker", MarkAsJokerTool(self.beet))
@@ -222,30 +234,10 @@ class App:
             *self.beet.get_cell_bbox(self.beet.screen_xy_to_cell_pos(event.x, event.y)))
 
     def optimize_input(self):
-        # Extract the plants from the input string
-
-        text = self.plant_list.get_text()
-        lines = filter(None, (line.strip() for line in text.split("\n")))
-
-        plants = []
-
-        for line in lines:
-            # E.g. "3x Carrot" => count = "3", name = "Carrot"
-            match = re.match(r"(?P<count>\d+)x\s+(?P<name>.+)", line)
-            if not match: continue
-
-            count = int(match.group("count"))
-            name = match.group("name")
-
-            plants.extend([name] * count)
-
         # Create the inputs for the optimizer
-        positions = list(self.beet.get_cells_by_pos().keys())
+        plants_by_pos = {pos: cell.plant for pos, cell in self.beet.get_cells_by_pos().items()}
         movable_positions = [pos for (pos, cell) in self.beet.get_cells_by_pos().items() if cell.is_movable]
-        plants_by_pos = {pos: plant for pos, plant in zip_longest(positions, plants, fillvalue=None)}
 
-        print(plants_by_pos)
-        print(positions)
         plan = plan_optimizer.Plan(plants_by_pos, movable_positions)
         plan = plan_optimizer.optimize(plan, 500)
         print(plan.fitness)
