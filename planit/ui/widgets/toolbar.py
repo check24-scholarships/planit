@@ -20,10 +20,10 @@ class SegmentedControl (typing.Generic[T]):
             deselected_style: dict = None):
 
         if selected_style is None:
-            selected_style = {"background": "0af", "foreground": "white"}
+            selected_style = {"background": "#0af", "foreground": "white"}
 
         if deselected_style is None:
-            deselected_style = {"background": "eee", "foreground": "black"}
+            deselected_style = {"background": "#eee", "foreground": "black"}
 
         self.buttons_by_name: typing.Dict[T, tk.Button] = {}
         self.selected_button: typing.Union[T, None] = None
@@ -36,7 +36,14 @@ class SegmentedControl (typing.Generic[T]):
         button.config(command=lambda: self.select(name))
         self.buttons_by_name[name] = button
 
+    def remove_all_buttons(self):
+        self.buttons_by_name.clear()
+        self.selected_button = None
+
     def select(self, name: T):
+        if name not in self.buttons_by_name:
+            return
+
         self.deselect(self.selected_button)
         button = self.buttons_by_name[name]
         button.config(**self.selected_style)

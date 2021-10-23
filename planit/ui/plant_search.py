@@ -7,7 +7,7 @@ Widget that lets the user select and search for plants.
 import tkinter as tk
 from fuzzyset import FuzzySet
 from .. import plant_data
-from .widgets import CallbackEntry
+from .widgets import CallbackEntry, FancyListBox, SegmentedControl
 
 
 class PlantSearchSession:
@@ -47,33 +47,36 @@ class PlantSearchFrame (tk.Frame):
         super(PlantSearchFrame, self).__init__(*args, **kwargs)
 
         self.search_bar = CallbackEntry(self, command=self.on_keystroke)
-        self.search_results = tk.Listbox(self)
+        self.search_results = FancyListBox(self)
         self.search_engine = PlantSearchSession()
-
-        self.selected_plant = None
 
         self.search_bar.pack(fill=tk.X)
         self.search_results.pack(expand=True, fill=tk.BOTH)
-        self.search_results.bind("<<ListboxSelect>>", self.on_select_plant)
+
+        self.selected_widgets_manager = SegmentedControl[str]()
+
+    @property
+    def selected_plant(self):
+        return self.selected_widgets_manager.selected_button
 
     def on_keystroke(self, new_text):
         search_term = new_text
-
         results = self.search_engine.find(search_term)
-        self.search_results.delete(0, tk.END)
+
+        previous_selection = self.selected_widgets_manager.selected_button
+        self.search_results.clear()
+        self.selected_widgets_manager.remove_all_buttons()
+
         for res in results:
-            self.search_results.insert(tk.END, res)
+            self.add_result(res)
 
-    def on_select_plant(self, event):
-        selection = event.widget.curselection()
+        self.selected_widgets_manager.select(previous_selection)
 
-        if not selection:
-            self.selected_plant = None
-            return
-
-        row = selection[0]
-        plant = event.widget.get(row)
-        self.selected_plant = plant
+    def add_result(self, name: str):
+        style = {"bd": 0}
+        plant_button = tk.Button(self.search_results.container, text=name, **style)
+        self.selected_widgets_manager.add_button(name, plant_button)
+        self.search_results.add_element(plant_button)
 
 
 if __name__ == '__main__':
