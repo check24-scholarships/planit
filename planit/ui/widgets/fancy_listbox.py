@@ -1,7 +1,7 @@
 
 
 """
-A better ListBox implementation for tkinter that lets you use custom widgets as elements
+A better ListBox implementation for tkinter that lets you use custom widgets as elements.
 """
 
 import tkinter as tk
