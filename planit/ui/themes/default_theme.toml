@@ -3,8 +3,15 @@
     root_background  = {}
     input_text = { background = "#fff", foreground = "black", font = "Calibri 12" }
 
+[search]
+    search_bar = { bg = "#eee", fg = "black", bd = 0, relief = "flat", font = ["Segoe UI", "11"] }
+    result = { font = "Calibri 12" }
+    result_selected = { bg = "#0af", fg = "white" }
+    result_deselected   = { bg = "#eee", fg = "black" }
+    background = { background = "#fff" }
+
 [toolbar]
-    button = { relief = "solid", bd = 0, highlightthickness = 0 }
+    button = { relief = "solid", bd = 0, highlightthickness = 0, font = ["Segoe UI", "10"] }
     button_selected   = { background = "#0af", foreground = "white" }
     button_deselected = { background = "#ccc", foreground = "black" }
 
@@ -24,5 +31,5 @@
     [beet_view.cell]
         background = { fill = "#7a6", width = 2}
         movable_pattern = { width = 2, dash = [10, 5] }
-        plant_text = { font = "Calibri 12" }
-        joker_text = { font = "Monospace 20"}
+        plant_text = { font = ["Segoe UI", "12"] }
+        joker_text = { font = ["Monospace", "20"] }
