@@ -34,6 +34,7 @@ class SegmentedControl (typing.Generic[T]):
 
     def add_button(self, name: T, button: tk.Button):
         button.config(command=lambda: self.select(name))
+        button.config(**self.deselected_style)
         self.buttons_by_name[name] = button
 
     def remove_all_buttons(self):

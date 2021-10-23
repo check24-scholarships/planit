@@ -161,6 +161,7 @@ class App:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Planit")
+        self.root.config(**theme.app.root_background)
 
         self.toolbar = Toolbar(self.root, change_action=self.on_change_tool)
         self.toolbar.pack(side=tk.TOP, fill=tk.X, ipady=5)
