@@ -6,7 +6,7 @@ Custom tkinter widgets and systems for handling toolbar-like systems.
 import tkinter as tk
 import typing
 
-from .theme import theme
+from ..theme import theme
 
 
 T = typing.TypeVar("T")
@@ -15,15 +15,15 @@ T = typing.TypeVar("T")
 class SegmentedControl (typing.Generic[T]):
     def __init__(
             self,
-            change_action: typing.Callable[[str, str], None] = None,
+            change_action: typing.Callable[[T, T], None] = None,
             selected_style: dict = None,
             deselected_style: dict = None):
 
         if selected_style is None:
-            selected_style = {"background": "0af", "foreground": "white"}
+            selected_style = {"background": "#0af", "foreground": "white"}
 
         if deselected_style is None:
-            deselected_style = {"background": "eee", "foreground": "black"}
+            deselected_style = {"background": "#eee", "foreground": "black"}
 
         self.buttons_by_name: typing.Dict[T, tk.Button] = {}
         self.selected_button: typing.Union[T, None] = None
@@ -34,9 +34,17 @@ class SegmentedControl (typing.Generic[T]):
 
     def add_button(self, name: T, button: tk.Button):
         button.config(command=lambda: self.select(name))
+        button.config(**self.deselected_style)
         self.buttons_by_name[name] = button
 
+    def remove_all_buttons(self):
+        self.buttons_by_name.clear()
+        self.selected_button = None
+
     def select(self, name: T):
+        if name not in self.buttons_by_name:
+            return
+
         self.deselect(self.selected_button)
         button = self.buttons_by_name[name]
         button.config(**self.selected_style)
