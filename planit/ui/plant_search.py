@@ -46,8 +46,8 @@ class PlantSearchFrame (tk.Frame):
     def __init__(self, *args, **kwargs):
         super(PlantSearchFrame, self).__init__(*args, **kwargs)
 
-        self.search_bar = CallbackEntry(self, command=self.on_keystroke)
-        self.search_results = FancyListBox(self)
+        self.search_bar = CallbackEntry(self, command=self.on_keystroke, width=25)
+        self.search_results = FancyListBox(self, width=20)
         self.search_engine = PlantSearchSession()
 
         self.search_bar.pack(fill=tk.X)

@@ -163,7 +163,7 @@ class App:
         self.root.title("Planit")
 
         self.toolbar = Toolbar(self.root, change_action=self.on_change_tool)
-        self.toolbar.pack(side=tk.TOP, fill=tk.X)
+        self.toolbar.pack(side=tk.TOP, fill=tk.X, ipady=5)
         self.tools_by_name: typing.Dict[str, Tool] = {}
 
         self.plant_search = PlantSearchFrame(self.root)
