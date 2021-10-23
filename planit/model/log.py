@@ -1,23 +1,20 @@
 # -*- coding: utf-8 -*-
 
-'''
+"""
 Logging
 
 Provides uniform logging.
-'''
+"""
 
 import logging
 import sys
 
-# Path to the log dir
-basePath: str = '../../log/'
+# Path of the log dir
+basePath: str = 'log/'
 
 # TODO: Type hint for returned logger
 def createLogger(name):
-
-    '''
-    Create a logger with a file and stream handler on debug level.
-    '''
+    """ Create a logger with a file and stream handler on debug level. """
 
     # Name the log file after the logger
     path: str = '{}{}.log'.format(basePath, name)
