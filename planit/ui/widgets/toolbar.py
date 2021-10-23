@@ -15,7 +15,7 @@ T = typing.TypeVar("T")
 class SegmentedControl (typing.Generic[T]):
     def __init__(
             self,
-            change_action: typing.Callable[[str, str], None] = None,
+            change_action: typing.Callable[[T, T], None] = None,
             selected_style: dict = None,
             deselected_style: dict = None):
 
