@@ -9,11 +9,11 @@ from .vertically_scrollable_frame import VerticallyScrollableFrame
 
 
 class FancyListBox (tk.Frame):
-    def __init__(self, master, spacing=10, **kwargs):
+    def __init__(self, master, width=10, spacing=10, **kwargs):
         super(FancyListBox, self).__init__(master, **kwargs)
         self.spacing = spacing
 
-        scrollable_frame = VerticallyScrollableFrame(self)
+        scrollable_frame = VerticallyScrollableFrame(self, width=width)
         scrollable_frame.pack(fill=tk.BOTH, expand=True)
         scrollable_frame.container.grid_columnconfigure(0, weight=1)
         self.container = scrollable_frame.container
