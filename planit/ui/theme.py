@@ -35,6 +35,15 @@ class AppStyle:
 
 
 @dataclass
+class SearchStyle:
+    search_bar: dict
+    result: dict
+    result_deselected: dict
+    result_selected: dict
+    background: dict
+
+
+@dataclass
 class ToolbarStyle:
     button: dict
     button_selected: dict
@@ -55,12 +64,13 @@ class Theme:
     toolbar: ToolbarStyle
     tools: ToolStyles
     beet_view: BeetViewStyle
+    search: SearchStyle
 
 
 theme: Theme
 themes_folder = os.path.join(os.path.dirname(__file__), "themes")
 
 # Load a theme
-with open(os.path.join(themes_folder, "dark_theme.toml"), "r") as theme_file:
+with open(os.path.join(themes_folder, "default_theme.toml"), "r") as theme_file:
     data = toml.load(theme_file)
     theme = dacite.from_dict(Theme, data)

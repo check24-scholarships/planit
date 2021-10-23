@@ -9,18 +9,19 @@ from .vertically_scrollable_frame import VerticallyScrollableFrame
 
 
 class FancyListBox (tk.Frame):
-    def __init__(self, master, width=10, spacing=10, **kwargs):
+    def __init__(self, master, width=10, spacing=3, **kwargs):
         super(FancyListBox, self).__init__(master, **kwargs)
         self.spacing = spacing
 
-        scrollable_frame = VerticallyScrollableFrame(self, width=width)
+        scrollable_frame = VerticallyScrollableFrame(self, width=width, **kwargs)
         scrollable_frame.pack(fill=tk.BOTH, expand=True)
         scrollable_frame.container.grid_columnconfigure(0, weight=1)
         self.container = scrollable_frame.container
         self._item_count = 0
 
-    def add_element(self, widget):
-        widget.grid(column=0, row=self._item_count, sticky="ew")
+    def add_element(self, widget, **kwargs):
+        styling = {"pady": (0, self.spacing), **kwargs}
+        widget.grid(column=0, row=self._item_count, sticky="ew", **styling)
         self._item_count += 1
 
     def clear(self):
