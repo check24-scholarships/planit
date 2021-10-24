@@ -1,10 +1,9 @@
 import sys
 import requests
 from bs4 import BeautifulSoup
-from data_formatter import DataFormatter
+from planit.crawler.data_formatter import DataFormatter
 from typing import List
 from dataclasses import dataclass
-import time
 
 
 @dataclass()
@@ -43,7 +42,7 @@ class Crawler:
         """
         try:
             r = requests.get(url, headers={
-                "user-agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+                "user-agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +https://www.google.com/bot.html)"
             })
         except requests.exceptions.ConnectionError:
             # TODO: handle exception
@@ -143,8 +142,3 @@ class Crawler:
         vegetables = {vegetable.text for vegetable in soup.find("ul").find_all("a")}
         vegetables.remove("[1]")
         return vegetables
-
-
-if __name__ == '__main__':
-    t = time.time()
-    crawler = Crawler()

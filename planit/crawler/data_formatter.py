@@ -21,7 +21,9 @@ class DataFormatter:
         self._unique_text_mistake = re.compile(r" \((?:[^,]+,){3}")
         self._split_pattern = re.compile(r"[,;.&/]\s?|\s?\band\s|\sor\s")
         self._lemmatized_set_entry_format_pattern = re.compile(r" (-|'s ) ?")
-        self._set_entries_to_be_deleted = {"together", "almost everything", "plant with many blossom", "many other"}
+        self._set_entries_to_be_deleted = {
+            "together", "almost everything", "plant with many blossom", "many other"
+        }
         self._set_entries_to_be_replaced = {
             re.compile(r".*lady bug"): "ladybug", re.compile(r"^aster.*"): "aster",
             re.compile(r"radishes"): "radish", re.compile(r"brassicas"): "brassica",
