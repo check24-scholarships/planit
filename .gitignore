@@ -1,5 +1,6 @@
-/log/
-/var/
+dev/
+log/
+var/
 
 # Code editors
 .idea
