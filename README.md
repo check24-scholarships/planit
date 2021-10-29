@@ -2,6 +2,14 @@
 
 Desktop application for planning the cultivation of vegetable plants.
 
+## Setup
+
+To install the dependencies, run `pip3 install -r requirements.txt`.
+
+## Usage
+
+The application can be started by running `python3 main.py` or as an executable as described below.
+
 ---
 
 **Tip**: How to run a python file directly without breaking relative imports:
