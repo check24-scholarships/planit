@@ -3,6 +3,7 @@ from ..standard_types import Plant
 from typing import Dict
 import os
 from functools import lru_cache
+from .. import resources
 
 
 @lru_cache(500)
@@ -18,7 +19,7 @@ def get_all_plants() -> Dict[str, str]:
 
 all_plants = {}
 local_folder = os.path.dirname(__file__)
-plants_list_file = os.path.join(local_folder, "plants.txt")
+plants_list_file = resources.get("plantdata/plants.txt")
 
 with open(plants_list_file, "r") as file:
     for line in file.readlines():

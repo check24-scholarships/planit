@@ -11,6 +11,8 @@ import dacite
 import toml
 import os
 
+from .. import resources
+
 
 @dataclass
 class BeetViewCellStyle:
@@ -71,6 +73,6 @@ theme: Theme
 themes_folder = os.path.join(os.path.dirname(__file__), "themes")
 
 # Load a theme
-with open(os.path.join(themes_folder, "default_theme.toml"), "r") as theme_file:
+with open(resources.get("themes/default_theme.toml"), "r") as theme_file:
     data = toml.load(theme_file)
     theme = dacite.from_dict(Theme, data)
