@@ -58,24 +58,29 @@ class Db:
     def _create_tables(self) -> None:
         """ Create the tables plants and symbioses. """
 
-        sql_drop: str = 'DROP TABLE IF EXISTS {};'
-        sql_create: str = 'CREATE TABLE {} ({});'
+        sql: str = 'CREATE TABLE IF NOT EXISTS {} ({});'
         tables: Dict[str, List[str]] = {
             'plants':
-            ['alias VARCHAR(255) PRIMARY KEY', 'common_name VARCHAR(255)'],
+            ['common_name VARCHAR(255) PRIMARY KEY'],
             'symbioses':
             ['plant_a VARCHAR(255)', 'plant_b VARCHAR(255), score INTEGER']
         }
 
         for name in tables:
-            self._execute_sql(sql_drop.format(name))
-            self._execute_sql(sql_create.format(name, ', '.join(tables[name])))
+            self._execute_sql(sql.format(name, ', '.join(tables[name])))
 
-    def add_plant(self, alias: str, common_name: str) -> bool:
+    def overwrite(self, name: str) -> None:
+        """ Overwrite a table. """
+
+        sql: str = 'DROP TABLE IF EXISTS {};'
+        self._execute_sql(sql.format(name))
+        self._create_tables()
+
+    def add_plant(self, common_name: str) -> bool:
         """ Add a plant to the db if it does not exist so far. """
 
-        sql: str = 'INSERT INTO plants VALUES (?, ?)'
-        values: List[str] = [alias, common_name]
+        sql: str = 'INSERT INTO plants VALUES (?)'
+        values: List[str] = [common_name]
         try:
             self._execute_sql(sql, values)
             return True
@@ -100,17 +105,17 @@ class Db:
         logging.debug('Integrity error')
         return False
 
-    def get_all_plants(self) -> Dict[str, str]:
+    def get_all_plants(self) -> List[str]:
         """ Get all plants from the db. """
 
         # Get the common names
-        sql: str = 'SELECT alias, common_name FROM plants;'
+        sql: str = 'SELECT common_name FROM plants;'
         rows: List[Tuple[str, ...]] = self._execute_sql(sql)
 
         # Sort the plants
-        plants: Dict[str, str] = dict()
+        plants: List[str] = []
         for row in rows:
-            plants[row[0]] = row[1]
+            plants.append(row[0])
 
         return plants
 

@@ -5,8 +5,10 @@ from planit.crawler.webcrawler import Crawler
 def create_db_file():
     crawler = Crawler()
     plants = crawler.crawl_companion_plants()
+    overwrite('plants')
+    overwrite('symbioses')
     for plant in plants:
-        add_plant(plant.common_name, plant.common_name)
+        add_plant(plant.common_name)
 
     for plant in plants:
         for help_plant in plant.helps:

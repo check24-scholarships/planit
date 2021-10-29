@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from .db import Db
-from typing import Dict
+from typing import Dict, List
 
 # Create db object
 db: Db = Db()
@@ -9,15 +9,19 @@ db: Db = Db()
 
 # Provide functions
 
-def add_plant(alias: str, common_name: str) -> bool:
+def overwrite(name: str) -> None:
+    """ Overwrite a table. """
+    db.overwrite(name)
+
+def add_plant(common_name: str) -> bool:
     """ Add a plant to the db if it does not exist so far. """
-    return db.add_plant(alias, common_name)
+    return db.add_plant(common_name)
 
 def add_symbiosis_score(plant_a: str, plant_b: str, score: int) -> bool:
     """ Add a symbiosis score to the db if it does not exist so far. """
     return db.add_symbiosis_score(plant_a, plant_b, score)
 
-def get_all_plants() -> Dict[str, str]:
+def get_all_plants() -> List[str]:
     """ Get all plants from the db. """
     return db.get_all_plants()
 
