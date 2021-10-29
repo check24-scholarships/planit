@@ -6,20 +6,23 @@ from .log import createLogger
 from functools import lru_cache
 from typing import Any, Dict, Iterable, List, Tuple, Union
 
+from planit import resources
+
+
 class Db:
     """ Connect to a sqlite3 database and execute SQL statements. """
 
     def __init__(self):
 
         # Path to the db file
-        path: str = 'var/planit.db'
+        path: str = 'plantdata/planit.db'
 
         # Use logger
         # TODO: Type hint for logger
         self._logger = createLogger('db')
 
         # Connect to the db
-        self._connection: sqlite3.Connection = sqlite3.connect(path)
+        self._connection: sqlite3.Connection = sqlite3.connect(resources.get(path))
 
         # Create missing tables
         self._create_tables()

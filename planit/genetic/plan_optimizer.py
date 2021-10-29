@@ -3,7 +3,7 @@ import random
 from collections import Counter
 
 from .genetic_algorithm import Evolution, Individual
-from . import plantdata
+import planit.plant_data.dummy as plant_data
 
 from tabulate import tabulate
 from tqdm import trange
@@ -176,7 +176,7 @@ class SymbiosisEvaluator (Evaluator):
         """
         Returns the symbiosis score based on the different weighting options
         """
-        symbiosis_score = plantdata.get_symbiosis_score(plant, neighbour)
+        symbiosis_score = plant_data.get_symbiosis_score(plant, neighbour)
         symbiosis_score *= self.positive_weight if symbiosis_score > 0 else self.negative_weight
         symbiosis_score *= influence_weight
         return symbiosis_score
