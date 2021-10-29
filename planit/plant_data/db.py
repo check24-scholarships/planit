@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import os
 import sqlite3
+from planit import resources
 from .log import createLogger
 from functools import lru_cache
 from typing import Any, Dict, Iterable, List, Tuple, Union
 
-from planit import resources
-
+# Path of the log dir
+basePath: str = 'plantdata/'
 
 class Db:
     """ Connect to a sqlite3 database and execute SQL statements. """
@@ -15,14 +17,14 @@ class Db:
     def __init__(self):
 
         # Path to the db file
-        path: str = 'plantdata/planit.db'
+        path: str = os.path.join(resources.get(basePath), 'planit.db')
 
         # Use logger
         # TODO: Type hint for logger
         self._logger = createLogger('db')
 
         # Connect to the db
-        self._connection: sqlite3.Connection = sqlite3.connect(resources.get(path))
+        self._connection: sqlite3.Connection = sqlite3.connect(path)
 
         # Create missing tables
         self._create_tables()
@@ -56,7 +58,8 @@ class Db:
     def _create_tables(self) -> None:
         """ Create the tables plants and symbioses. """
 
-        sql: str = 'CREATE TABLE IF NOT EXISTS {} ({});'
+        sql_drop: str = 'DROP TABLE IF EXISTS {};'
+        sql_create: str = 'CREATE TABLE {} ({});'
         tables: Dict[str, List[str]] = {
             'plants':
             ['alias VARCHAR(255) PRIMARY KEY', 'common_name VARCHAR(255)'],
@@ -65,7 +68,8 @@ class Db:
         }
 
         for name in tables:
-            self._execute_sql(sql.format(name, ', '.join(tables[name])))
+            self._execute_sql(sql_drop.format(name))
+            self._execute_sql(sql_create.format(name, ', '.join(tables[name])))
 
     def add_plant(self, alias: str, common_name: str) -> bool:
         """ Add a plant to the db if it does not exist so far. """

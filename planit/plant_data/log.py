@@ -39,6 +39,6 @@ def createLogger(name):
     logger = logging.getLogger()
     logger.addHandler(fileHandler)
     logger.addHandler(streamHandler)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
 
     return logger
