@@ -3,7 +3,7 @@ import random
 from collections import Counter
 
 from .genetic_algorithm import Evolution, Individual
-from planit.plant_data import dummy as plant_data
+import planit.plant_data.dummy as plant_data
 
 from tabulate import tabulate
 from tqdm import trange

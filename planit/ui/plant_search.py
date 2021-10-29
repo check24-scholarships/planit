@@ -6,7 +6,7 @@ Widget that lets the user select and search for plants.
 
 import tkinter as tk
 from fuzzyset import FuzzySet
-from ..plant_data import dummy as plant_data
+import planit.plant_data.dummy as plant_data
 from .widgets import CallbackEntry, FancyListBox, SegmentedControl
 from .theme import theme
 
