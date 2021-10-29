@@ -6,7 +6,7 @@ Widget that lets the user select and search for plants.
 
 import tkinter as tk
 from fuzzyset import FuzzySet
-from .. import plant_data
+import planit.plant_data.dummy as plant_data
 from .widgets import CallbackEntry, FancyListBox, SegmentedControl
 from .theme import theme
 
@@ -61,6 +61,9 @@ class PlantSearchFrame (tk.Frame):
             selected_style=theme.search.result_selected,
             deselected_style=theme.search.result_deselected
         )
+
+        # Mimics user input, shows all plants when the app starts, as if the user had cleared the search query.
+        self.on_keystroke("")
 
     @property
     def selected_plant(self):

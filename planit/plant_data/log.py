@@ -8,6 +8,8 @@ Provides uniform logging.
 
 import logging
 import sys
+import os
+from planit import resources
 
 # Path of the log dir
 basePath: str = 'log/'
@@ -17,7 +19,7 @@ def createLogger(name):
     """ Create a logger with a file and stream handler on debug level. """
 
     # Name the log file after the logger
-    path: str = '{}{}.log'.format(basePath, name)
+    path: str = os.path.join(resources.get(basePath), f'{name}.log')
 
     # Create file handler and stream handler for console logging
     fileHandler: logging.FileHandler = logging.FileHandler(path)

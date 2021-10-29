@@ -1,12 +1,14 @@
 
-from ..standard_types import Plant
 from typing import Dict
-import os
-from functools import lru_cache
+import json
+
+from standard_types import Plant
+from planit import resources
 
 
-@lru_cache(500)
 def get_symbiosis_score(plant_a: Plant, plant_b: Plant) -> int:
+    if plant_a in symbiosis_table:
+        return symbiosis_table[plant_a].get(plant_b, 0)
     return 0
 
 
@@ -17,10 +19,9 @@ def get_all_plants() -> Dict[str, str]:
 # Load in the plant names from the ./plants.txt file
 
 all_plants = {}
-local_folder = os.path.dirname(__file__)
-plants_list_file = os.path.join(local_folder, "plants.txt")
+symbiosis_table = {}
 
-with open(plants_list_file, "r") as file:
+with open(resources.get("plantdata/plants.txt"), "r") as file:
     for line in file.readlines():
         line = line.strip()
 
@@ -29,3 +30,6 @@ with open(plants_list_file, "r") as file:
             continue
 
         all_plants[line] = line
+
+with open(resources.get("plantdata/symbiosis_data.json"), "r") as file:
+    symbiosis_table = json.load(file)
