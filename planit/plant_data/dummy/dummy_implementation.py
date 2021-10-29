@@ -1,9 +1,9 @@
 
-from ..standard_types import Plant
+from standard_types import Plant
 from typing import Dict
 import os
 from functools import lru_cache
-from .. import resources
+from planit import resources
 
 
 @lru_cache(500)

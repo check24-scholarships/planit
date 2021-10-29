@@ -21,15 +21,15 @@ from planit import model
 from typing import Dict
 
 # Add plants a and b
-model.add_plant('a', 'a')
-model.add_plant('b', 'b')
+plant_data.add_plant('a', 'a')
+plant_data.add_plant('b', 'b')
 
 # Add symbiosis score
-model.add_symbiosis_score('a', 'b', 1)
+plant_data.add_symbiosis_score('a', 'b', 1)
 
 # Get all plants
-all_plants: Dict[str, str] = model.get_all_plants()
+all_plants: Dict[str, str] = plant_data.get_all_plants()
 
 # Get the symbiosis score of plant a and b
-symbiosis_score_a_b: int = model.get_symbiosis_score('a', 'b')
+symbiosis_score_a_b: int = plant_data.get_symbiosis_score('a', 'b')
 ```
