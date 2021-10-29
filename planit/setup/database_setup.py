@@ -15,6 +15,9 @@ def create_db_file():
         for helped_by_plant in plant.helped_by:
             add_symbiosis_score(helped_by_plant, plant.common_name, 1)
 
+        for avoid_plant in plant.avoid:
+            add_symbiosis_score(plant.common_name, avoid_plant, -1)
+
 
 if __name__ == '__main__':
     create_db_file()
