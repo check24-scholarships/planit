@@ -6,7 +6,7 @@ from .log import createLogger
 from functools import lru_cache
 from typing import Any, Dict, Iterable, List, Tuple, Union
 
-from .. import resources
+from planit import resources
 
 
 class Db:

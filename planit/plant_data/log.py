@@ -9,7 +9,7 @@ Provides uniform logging.
 import logging
 import sys
 import os
-from .. import resources
+from planit import resources
 
 # Path of the log dir
 basePath: str = 'log/'

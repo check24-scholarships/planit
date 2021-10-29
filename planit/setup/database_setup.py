@@ -1,4 +1,4 @@
-from planit.model import *
+from planit.plant_data import *
 from planit.crawler.webcrawler import Crawler
 
 
