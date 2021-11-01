@@ -21,3 +21,6 @@ beautifulsoup4>=4.8.2
 # You still have to run python -m spacy download en_core_web_sm
 spacy>=3.1.1
 https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.1.0/en_core_web_sm-3.1.0.tar.gz
+
+# Lazy imports for faster app startup times
+lazy-import>=0.2.2
