@@ -19,15 +19,15 @@ class PlantSearchSession:
     benefits of the underlying FuzzySet if you initialise the session once and then reuse it for every search.
     """
     def __init__(self):
-        self.plants_by_common_name = plant_data.get_all_plants()
+        self.all_plants = plant_data.get_all_plants()
         self.common_names = FuzzySet(
-            self.plants_by_common_name.keys(),
+            self.all_plants,
             # This means that .get() will only return additional results that are
             # at least 50% as good as the best result.
             rel_sim_cutoff=0.5
         )
 
-    def find(self, search_term) -> dict:
+    def find(self, search_term) -> list:
         results = self.common_names.get(search_term)
 
         matched_common_names = [
@@ -35,15 +35,10 @@ class PlantSearchSession:
             for match_quality, common_name in (results if results is not None else [])
         ]
 
-        matched_plants_by_common_name = {
-            common_name: self.plants_by_common_name[common_name]
-            for common_name in matched_common_names
-        }
+        return matched_common_names
 
-        return matched_plants_by_common_name
-
-    def get_all(self) -> dict:
-        return self.plants_by_common_name
+    def get_all(self) -> list:
+        return self.all_plants
 
 
 class PlantSearchFrame (tk.Frame):
@@ -70,7 +65,7 @@ class PlantSearchFrame (tk.Frame):
         return self.selected_widgets_manager.selected_button
 
     def on_keystroke(self, new_text):
-        search_term = new_text
+        search_term = new_text.strip()
         results = self.search_engine.find(search_term)
 
         previous_selection = self.selected_widgets_manager.selected_button
@@ -89,7 +84,7 @@ class PlantSearchFrame (tk.Frame):
                 already_selected = True
 
         if len(results) == 1:
-            identifier = next(iter(results.values()))
+            identifier = results[0]
             self.selected_widgets_manager.select(identifier)
 
         if not already_selected:
