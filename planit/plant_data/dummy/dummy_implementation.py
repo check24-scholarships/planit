@@ -30,5 +30,7 @@ with open(resources.get("plantdata/plants.txt"), "r") as file:
 
         all_plants.append(line)
 
+all_plants.sort()
+
 with open(resources.get("plantdata/symbiosis_data.json"), "r") as file:
     symbiosis_table = json.load(file)
