@@ -267,12 +267,24 @@ class BeetView(ScrollableCanvas):
             self._draw_cell(cell, pos)
             self.cells_by_pos[pos] = cell
 
-    def export_to_plan(self):
+    def export_plan(self):
         """
         Converts the BeetView to a plan_optimizer.Plan that can be optimised.
         """
         plants_by_pos = {pos: cell.plant for pos, cell in self.get_cells_by_pos().items()}
         movable_positions = [pos for (pos, cell) in self.get_cells_by_pos().items() if cell.is_movable]
 
+        plan = plan_optimizer.Plan(plants_by_pos, movable_positions)
+        return plan
+
+    def export_partial_plan(self, positions_to_include, include_movable=True):
+        """
+        Creates a plan_optimizer.Plan object that only includes the target cells
+        """
+        plants_by_pos = {pos: self.cells_by_pos.get(pos, Cell()).plant for pos in positions_to_include}
+        if include_movable:
+            movable_positions = [pos for pos in positions_to_include if self.cells_by_pos.get(pos, Cell()).is_movable]
+        else:
+            movable_positions = []
         plan = plan_optimizer.Plan(plants_by_pos, movable_positions)
         return plan

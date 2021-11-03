@@ -51,10 +51,11 @@ class SwapTool (Tool):
     Tool for swapping two cells.
     """
 
-    def __init__(self, beet_view: BeetView):
+    def __init__(self, app: "App"):
         self.from_cursor = None
         self.from_pos = None
-        self.beet_view = beet_view
+        self.app = app
+        self.beet_view = app.beet
 
     def deactivate(self):
         if self.from_cursor is not None:
@@ -71,6 +72,8 @@ class SwapTool (Tool):
 
         to_pos = self.beet_view.screen_xy_to_cell_pos(event.x, event.y)
         self.beet_view.swap_cells(self.from_pos, to_pos)
+        self.app.update_cell_quality(self.from_pos)
+        self.app.update_cell_quality(to_pos)
 
 
 class BrushTool (Tool):
@@ -78,8 +81,9 @@ class BrushTool (Tool):
     Base class of all "brush-like" tools that let the user draw on the grid as if it was a pixel image.
     """
 
-    def __init__(self, beet_view: BeetView):
-        self.beet_view = beet_view
+    def __init__(self, app: "App"):
+        self.app = app
+        self.beet_view = app.beet
 
     def on_lmb_release(self, event):
         self.beet_view.on_resize(None)
@@ -108,14 +112,17 @@ class AddCellTool (BrushTool):
 
     def _rmb_cell_action(self, pos: Position):
         self.beet_view.delete_cell(pos, False)
+        self.app.update_cell_quality(pos)
 
 
 class MarkAsJokerTool (BrushTool):
     def _lmb_cell_action(self, pos: Position):
         self.beet_view.set_joker(pos, True)
+        self.app.update_cell_quality(pos)
 
     def _rmb_cell_action(self, pos: Position):
         self.beet_view.set_joker(pos, False)
+        self.app.update_cell_quality(pos)
 
 
 class MarkAsMovableTool (BrushTool):
@@ -127,18 +134,16 @@ class MarkAsMovableTool (BrushTool):
 
 
 class DrawPlantTool (BrushTool):
-    def __init__(self, app: "App"):
-        self.app = app
-        super(DrawPlantTool, self).__init__(app.beet)
-
     def _lmb_cell_action(self, pos: Position):
         plant = self.app.plant_search.selected_plant
         if not plant:
             return
         self.beet_view.set_plant(pos, plant)
+        self.app.update_cell_quality(pos)
 
     def _rmb_cell_action(self, pos: Position):
         self.beet_view.set_plant(pos, None)
+        self.app.update_cell_quality(pos)
 
 
 class Tools:
@@ -191,15 +196,15 @@ class App:
             self.toolbar.add_button(name, text)
 
         add_tool(Tools.MOVE, "Move", Tool())
-        add_tool(Tools.SWAP, "Swap", SwapTool(self.beet))
+        add_tool(Tools.SWAP, "Swap", SwapTool(self))
 
         self.toolbar.add_spacer()
-        add_tool(Tools.ADD_CELL, "Add Cell", AddCellTool(self.beet))
+        add_tool(Tools.ADD_CELL, "Add Cell", AddCellTool(self))
         add_tool(Tools.ADD_PLANT, "Add Plant", DrawPlantTool(self))
 
         self.toolbar.add_spacer()
-        add_tool(Tools.MARK_AS_MOVABLE, "Movable", MarkAsMovableTool(self.beet))
-        add_tool(Tools.MARK_AS_JOKER, "Joker", MarkAsJokerTool(self.beet))
+        add_tool(Tools.MARK_AS_MOVABLE, "Movable", MarkAsMovableTool(self))
+        add_tool(Tools.MARK_AS_JOKER, "Joker", MarkAsJokerTool(self))
 
         self.toolbar.add_action("Optimise", self.optimize_input)
 
@@ -224,6 +229,46 @@ class App:
 
         return call_method_on_event
 
+    def update_cell_quality(self, pos):
+        """
+        Only updates the quality field of the affected cell and its neighbours instead of the entire plan.
+        """
+
+        # As the partial updater has to (normally) update a total 5x5 square around the affected cell, it is more
+        # efficient to just update the entire plan when less cells are involved.
+        if len(self.beet.cells_by_pos) < 25:
+            self.update_full_plan_quality()
+
+        def add_pos(pos_a, pos_b):
+            return pos_a[0] + pos_b[0], pos_a[1] + pos_b[1]
+
+        affected_tiles = {
+            add_pos(start, relative_pos)
+            for relative_pos in plan_optimizer.AFFECTED_TILES
+            # The partial plan also has to include the neighbouring cells of each neighbour of the actual
+            # cell to update.
+            for start in [pos, *plan_optimizer.AFFECTED_TILES]
+        }
+
+        affected_tiles.add(pos)
+        positions_to_update = list(affected_tiles)
+
+        plan = self.beet.export_partial_plan(positions_to_update, include_movable=False)
+        evaluator = plan_optimizer.MAIN_EVALUATOR
+        for pos in positions_to_update:
+            self.beet.set_quality(pos, evaluator.evaluate_cell(plan, pos))
+
+    def update_full_plan_quality(self, plan=None):
+        """
+        Updates the quality field of every cell in the plan
+        """
+        if plan is None:
+            plan = self.beet.export_plan()
+
+        evaluator = plan_optimizer.MAIN_EVALUATOR
+        for pos in plan.plants_by_pos:
+            self.beet.set_quality(pos, evaluator.evaluate_cell(plan, pos))
+
     def move_cursor_in_beet(self, event):
         """ Moves the square cursor that indicates which cell is currently under the mouse. """
         self.beet.canvas.coords(
@@ -232,7 +277,7 @@ class App:
 
     def optimize_input(self):
         # Create the inputs for the optimizer
-        plan = self.beet.export_to_plan()
+        plan = self.beet.export_plan()
 
         # Optimize
         plan = plan_optimizer.optimize(plan, 500)
@@ -244,9 +289,7 @@ class App:
             self.beet.set_plant(pos, plant)
 
         # Visualize the quality score of each cell
-        evaluator = plan_optimizer.MAIN_EVALUATOR
-        for pos in plan.plants_by_pos:
-            self.beet.set_quality(pos, evaluator.evaluate_cell(plan, pos))
+        self.update_full_plan_quality(plan)
 
 
 def run_app():
