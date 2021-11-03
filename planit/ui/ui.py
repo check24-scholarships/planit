@@ -243,6 +243,10 @@ class App:
         for pos, plant in plan.plants_by_pos.items():
             self.beet.set_plant(pos, plant)
 
+        evaluator = plan_optimizer.MAIN_EVALUATOR
+        for pos in plan.plants_by_pos:
+            self.beet.set_quality(pos, evaluator.evaluate_cell(plan, pos))
+
 
 def run_app():
     app = App()

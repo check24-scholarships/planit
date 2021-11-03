@@ -9,8 +9,19 @@ import math
 from .theme import theme
 from .widgets.scrollable_canvas import ScrollableCanvas
 from ..standard_types import *
+from ..genetic import plan_optimizer
 
 import typing
+
+
+QUALITY_COLORS = ['#e64369', '#eb6f61', '#f09a59', '#f5c651', '#cbcb50', '#a0cf4f', '#76d44e', '#64d064', '#52cb7b', '#40c791']
+
+
+def get_quality_color(quality):
+    count = len(QUALITY_COLORS)
+    idx = int((quality + 1) / 2 * count)
+    idx = 0 if idx < 0 else count-1 if idx >= count else idx
+    return QUALITY_COLORS[idx]
 
 
 class Cell:
@@ -21,13 +32,17 @@ class Cell:
         self.plant: Plant = None
         self.is_joker = False
         self.is_movable = True
+        self.quality = 0.0
 
         self.background = None
         self.movable_pattern = None
         self.text = None
 
     def draw(self, bbox: BBox, canvas: tk.Canvas):
-        self.background = canvas.create_rectangle(*bbox, **theme.beet_view.cell.background)
+        background_color = get_quality_color(self.quality)
+        background_style = theme.beet_view.cell.background
+        background_style["fill"] = background_color
+        self.background = canvas.create_rectangle(*bbox, **background_style)
 
         cx = bbox.x0 + (bbox.x1 - bbox.x0) / 2
         cy = bbox.y0 + (bbox.y1 - bbox.y0) / 2
@@ -197,7 +212,7 @@ class BeetView(ScrollableCanvas):
 
     def set_joker(self, pos: Position, is_joker: bool, redraw=True):
         """
-        Sets the joker flag of 1the cell at the given cell position if there is a cell there.
+        Sets the joker flag of the cell at the given cell position if there is a cell there.
         """
         cell = self.cells_by_pos.get(pos, None)
         if cell is None:
@@ -216,6 +231,18 @@ class BeetView(ScrollableCanvas):
             return
 
         cell.is_movable = is_movable
+        if redraw:
+            self._redraw_cell(cell, pos)
+
+    def set_quality(self, pos: Position, quality: float, redraw=True):
+        """
+        Sets the quality attribute of 1the cell at the given cell position if there is a cell there.
+        """
+        cell = self.cells_by_pos.get(pos, None)
+        if cell is None:
+            return
+
+        cell.quality = quality
         if redraw:
             self._redraw_cell(cell, pos)
 
@@ -241,3 +268,13 @@ class BeetView(ScrollableCanvas):
             pos = cell_data["pos"]
             self._draw_cell(cell, pos)
             self.cells_by_pos[pos] = cell
+
+    def export_to_plan(self):
+        """
+        Converts the BeetView to a plan_optimizer.Plan that can be optimised.
+        """
+        plants_by_pos = {pos: cell.plant for pos, cell in self.get_cells_by_pos().items()}
+        movable_positions = [pos for (pos, cell) in self.get_cells_by_pos().items() if cell.is_movable]
+
+        plan = plan_optimizer.Plan(plants_by_pos, movable_positions)
+        return plan
