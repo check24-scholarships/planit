@@ -24,3 +24,6 @@ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.1.0
 
 # Lazy imports for faster app startup times
 lazy-import>=0.2.2
+
+# Helper for color creation of UI visualization of symbiosis scores
+colour>=0.1.5
