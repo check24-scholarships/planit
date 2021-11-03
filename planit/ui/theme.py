@@ -15,11 +15,18 @@ from .. import resources
 
 
 @dataclass
+class CellQualityColorGradient:
+    gradient: list
+    gradient_smoothing: int
+
+
+@dataclass
 class BeetViewCellStyle:
     movable_pattern: dict
     plant_text: dict
     joker_text: dict
     background: dict
+    quality: CellQualityColorGradient
 
 
 @dataclass

@@ -10,16 +10,14 @@ from .theme import theme
 from .widgets.scrollable_canvas import ScrollableCanvas
 from ..standard_types import *
 from ..genetic import plan_optimizer
+from .cell_quality_colors import QUALITY_COLORS
 
 import typing
 
 
-QUALITY_COLORS = ['#e64369', '#eb6f61', '#f09a59', '#f5c651', '#cbcb50', '#a0cf4f', '#76d44e', '#64d064', '#52cb7b', '#40c791']
-
-
 def get_quality_color(quality):
     count = len(QUALITY_COLORS)
-    idx = int((quality + 1) / 2 * count)
+    idx = round((quality + 1) / 2 * count)
     idx = 0 if idx < 0 else count-1 if idx >= count else idx
     return QUALITY_COLORS[idx]
 

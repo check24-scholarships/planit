@@ -232,17 +232,18 @@ class App:
 
     def optimize_input(self):
         # Create the inputs for the optimizer
-        plants_by_pos = {pos: cell.plant for pos, cell in self.beet.get_cells_by_pos().items()}
-        movable_positions = [pos for (pos, cell) in self.beet.get_cells_by_pos().items() if cell.is_movable]
+        plan = self.beet.export_to_plan()
 
-        plan = plan_optimizer.Plan(plants_by_pos, movable_positions)
+        # Optimize
         plan = plan_optimizer.optimize(plan, 500)
         print(plan.fitness)
         print(plan)
 
+        # Show the optimized version on screen
         for pos, plant in plan.plants_by_pos.items():
             self.beet.set_plant(pos, plant)
 
+        # Visualize the quality score of each cell
         evaluator = plan_optimizer.MAIN_EVALUATOR
         for pos in plan.plants_by_pos:
             self.beet.set_quality(pos, evaluator.evaluate_cell(plan, pos))

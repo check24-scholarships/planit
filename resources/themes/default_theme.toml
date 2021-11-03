@@ -33,3 +33,8 @@
         movable_pattern = { width = 2, dash = [10, 5] }
         plant_text = { font = ["Segoe UI", "12"] }
         joker_text = { font = ["Monospace", "20"] }
+
+    [beet_view.cell.quality]
+        gradient = [ "#e64369", "#f5c651", "#76d44e", "#40c791" ]
+        # How many additional colors to add between two items of the gradient
+        gradient_smoothing = 3
