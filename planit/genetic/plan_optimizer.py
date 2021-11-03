@@ -162,6 +162,9 @@ class Evaluator:
     def evaluate(self, plan: Plan) -> float:
         pass
 
+    def evaluate_cell(self, plan: Plan, pos: Position) -> float:
+        pass
+
 
 class SymbiosisEvaluator (Evaluator):
     """
@@ -180,6 +183,13 @@ class SymbiosisEvaluator (Evaluator):
         symbiosis_score *= self.positive_weight if symbiosis_score > 0 else self.negative_weight
         symbiosis_score *= influence_weight
         return symbiosis_score
+
+    def evaluate_cell(self, plan, pos):
+        plant = plan.plants_by_pos[pos]
+        score = sum(self.get_modified_symbiosis_score(plant, neighbour, weight)
+                    for neighbour, weight in get_neighbours(plan, pos))
+        score /= len(AFFECTED_TILES) * max(self.negative_weight, self.positive_weight)
+        return score
 
     def evaluate(self, plan: Plan) -> float:
         """
@@ -214,6 +224,9 @@ class SymbiosisEvaluator (Evaluator):
         return total_score
 
 
+MAIN_EVALUATOR = SymbiosisEvaluator(negative_weight=2)
+
+
 def optimize(plan: Plan, iterations=1000) -> Plan:
     evo = Evolution(
         Plan,
@@ -228,7 +241,7 @@ def optimize(plan: Plan, iterations=1000) -> Plan:
     return evo.get_best()
 
 
-evaluate_fitness = SymbiosisEvaluator().evaluate
+evaluate_fitness = MAIN_EVALUATOR.evaluate
 
 
 if __name__ == '__main__':
