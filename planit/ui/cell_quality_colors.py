@@ -1,23 +1,11 @@
 
+"""
+Helper script that smooths the quality color gradient in the theme.
+"""
+
+
+from .theme import theme
 import colour
-
-
-def create_gradient(colors, steps_per_color=5):
-    if len(colors) == 0:
-        return []
-
-    if len(colors) == 1:
-        return [colors[0]] * steps_per_color
-
-    gradient = []
-
-    start = colour.Color(colors[0])
-    for color in colors[1:]:
-        color = colour.Color(color)
-        gradient.extend(start.range_to(color, steps_per_color))
-        start = color
-
-    return gradient
 
 
 def linspace(start, stop, num=50, include_endpoint=True):
@@ -37,7 +25,7 @@ def linspace(start, stop, num=50, include_endpoint=True):
         yield start + step * i
 
 
-def create_gradient_2(colors, steps_per_color=5):
+def create_gradient(colors, steps_per_color=5):
     gradient = []
     colors = list(colour.Color(color) for color in colors)
 
@@ -71,9 +59,11 @@ def show_gradient(colors):
     root.mainloop()
 
 
-gradient = create_gradient(["#e64369", "#f5c651", "#4ed46d"], steps_per_color=5)
-show_gradient(gradient)
+quality_settings = theme.beet_view.cell.quality
 
-gradient = create_gradient_2(["#e64369", "#f5c651", "#76d44e", "#40c791"], steps_per_color=3)
-print([col.hex for col in gradient])
-show_gradient(gradient)
+
+QUALITY_COLORS = [
+    color.hex
+    for color
+    in create_gradient(quality_settings.gradient, steps_per_color=quality_settings.gradient_smoothing)
+]
