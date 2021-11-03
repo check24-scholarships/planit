@@ -225,6 +225,7 @@ class SymbiosisEvaluator (Evaluator):
 
 
 MAIN_EVALUATOR = SymbiosisEvaluator(negative_weight=2)
+evaluate_fitness = MAIN_EVALUATOR.evaluate
 
 
 def optimize(plan: Plan, iterations=1000) -> Plan:
@@ -239,9 +240,6 @@ def optimize(plan: Plan, iterations=1000) -> Plan:
         evo.evolve()
 
     return evo.get_best()
-
-
-evaluate_fitness = MAIN_EVALUATOR.evaluate
 
 
 if __name__ == '__main__':
