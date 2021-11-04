@@ -1,7 +1,7 @@
 
 import json
 
-from standard_types import Plant
+from planit.standard_types import Plant
 from planit import resources
 
 
