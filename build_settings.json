@@ -27,7 +27,7 @@
   },
   {
    "optionDest": "clean_build",
-   "value": true
+   "value": false
   },
   {
    "optionDest": "strip",
@@ -67,7 +67,11 @@
   },
   {
    "optionDest": "datas",
-   "value": "PathTo/planit/resources;resources/"
+   "value": "PathTo/resources;resources/"
+  },
+  {
+   "optionDest": "datas",
+   "value": "PathTo/build_data/lazy_import/VERSION;lazy_import/"
   }
  ],
  "nonPyinstallerOptions": {
