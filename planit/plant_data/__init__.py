@@ -17,7 +17,7 @@ def add_plant(common_name: str) -> bool:
     """ Add a plant to the db if it does not exist so far. """
     return db.add_plant(common_name)
 
-def add_symbiosis_score(plant_a: str, plant_b: str, score: int) -> bool:
+def add_symbiosis_score(plant_a: str, plant_b: str, score: int = 0) -> bool:
     """ Add a symbiosis score to the db if it does not exist so far. """
     return db.add_symbiosis_score(plant_a, plant_b, score)
 

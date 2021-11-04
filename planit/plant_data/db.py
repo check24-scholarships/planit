@@ -61,9 +61,10 @@ class Db:
         sql: str = 'CREATE TABLE IF NOT EXISTS {} ({});'
         tables: Dict[str, List[str]] = {
             'plants':
-            ['common_name VARCHAR(255) PRIMARY KEY'],
+            ['common_name TEXT PRIMARY KEY'],
             'symbioses':
-            ['plant_a VARCHAR(255)', 'plant_b VARCHAR(255), score INTEGER']
+            ['plant_a TEXT NOT NULL', 'plant_b TEXT NOT NULL',
+            'score INTEGER NOT NULL']
         }
 
         for name in tables:
