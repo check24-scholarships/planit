@@ -20,9 +20,16 @@ class FancyListBox (tk.Frame):
         self._item_count = 0
 
     def add_element(self, widget, **kwargs):
+        self._item_count += 1
         styling = {"pady": (0, self.spacing), **kwargs}
         widget.grid(column=0, row=self._item_count, sticky="ew", **styling)
-        self._item_count += 1
+
+    def hide_element(self, widget):
+        widget.grid_forget()
+
+    def show_element(self, widget, **kwargs):
+        styling = {"pady": (0, self.spacing), **kwargs}
+        widget.grid(sticky="ew", **styling)
 
     def clear(self):
         for widget in self.container.winfo_children():

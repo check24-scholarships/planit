@@ -57,8 +57,13 @@ class PlantSearchFrame (tk.Frame):
             deselected_style=theme.search.result_deselected
         )
 
-        # Mimics user input, shows all plants when the app starts, as if the user had cleared the search query.
-        self.on_keystroke("")
+        self.plant_buttons = dict()
+        self.visible_plants = set()
+        self.all_plants = set(self.search_engine.get_all())
+
+        # Show every plant when the app starts
+        for plant in self.all_plants:
+            self.add_result(plant.lower())
 
     @property
     def selected_plant(self):
@@ -69,26 +74,20 @@ class PlantSearchFrame (tk.Frame):
         results = self.search_engine.find(search_term)
 
         previous_selection = self.selected_widgets_manager.selected_button
-        self.search_results.clear()
-        self.selected_widgets_manager.remove_all_buttons()
-
-        already_selected = False
 
         if len(search_term) == 0:
             results = self.search_engine.get_all()
 
-        for name in results:
-            self.add_result(name)
-            if name.lower() == search_term.lower():
-                self.selected_widgets_manager.select(name)
-                already_selected = True
+        results = [name.lower() for name in results]
+
+        if search_term.lower() not in results:
+            self.selected_widgets_manager.select(previous_selection)
 
         if len(results) == 1:
             identifier = results[0]
             self.selected_widgets_manager.select(identifier)
 
-        if not already_selected:
-            self.selected_widgets_manager.select(previous_selection)
+        self.show_plants(results)
 
     def add_result(self, name: str):
         style = {"bd": 0, **theme.search.result}
@@ -96,6 +95,22 @@ class PlantSearchFrame (tk.Frame):
 
         self.selected_widgets_manager.add_button(name, plant_button)
         self.search_results.add_element(plant_button)
+
+        self.visible_plants.add(name)
+        self.plant_buttons[name] = plant_button
+
+    def show_plants(self, plants: list):
+        plants = set(plants)
+        plants_to_show = plants - self.visible_plants
+        plants_to_hide = self.visible_plants - plants
+
+        for plant in plants_to_show:
+            self.search_results.show_element(self.plant_buttons[plant])
+
+        for plant in plants_to_hide:
+            self.search_results.hide_element(self.plant_buttons[plant])
+
+        self.visible_plants = plants
 
 
 if __name__ == '__main__':
