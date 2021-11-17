@@ -80,7 +80,9 @@ class PlantSearchFrame (tk.Frame):
 
         results = [name.lower() for name in results]
 
-        if search_term.lower() not in results:
+        if search_term.lower() in results:
+            self.selected_widgets_manager.select(search_term.lower())
+        else:
             self.selected_widgets_manager.select(previous_selection)
 
         if len(results) == 1:
