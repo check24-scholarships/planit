@@ -80,6 +80,6 @@ theme: Theme
 themes_folder = os.path.join(os.path.dirname(__file__), "themes")
 
 # Load a theme
-with open(resources.get("themes/default_theme.toml"), "r") as theme_file:
+with open(resources.get("themes/light_theme.toml"), "r") as theme_file:
     data = toml.load(theme_file)
     theme = dacite.from_dict(Theme, data)
