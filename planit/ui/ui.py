@@ -238,22 +238,30 @@ class App:
         # efficient to just update the entire plan when less cells are involved.
         if len(self.beet.cells_by_pos) < 25:
             self.update_full_plan_quality()
+            return
 
         def add_pos(pos_a, pos_b):
             return pos_a[0] + pos_b[0], pos_a[1] + pos_b[1]
 
-        affected_tiles = {
-            add_pos(start, relative_pos)
+        # Create a set of every cell that needs to be taken into consideration in order to evaluate the score
+        # for each plant that is directly affected by an update.
+        tiles_to_include = {
+            add_pos(pos, add_pos(start, relative_pos))
             for relative_pos in plan_optimizer.AFFECTED_TILES
             # The partial plan also has to include the neighbouring cells of each neighbour of the actual
             # cell to update.
-            for start in [pos, *plan_optimizer.AFFECTED_TILES]
+            for start in [(0, 0), *plan_optimizer.AFFECTED_TILES]
         }
+        tiles_to_include.add(pos)
+        plan = self.beet.export_partial_plan(tiles_to_include, include_movable=False)
 
-        affected_tiles.add(pos)
-        positions_to_update = list(affected_tiles)
+        # List of plants that were directly affected by the change and need to be updated.
+        positions_to_update = [
+            add_pos(pos, relative_pos)
+            for relative_pos in plan_optimizer.AFFECTED_TILES
+        ]
+        positions_to_update.append(pos)
 
-        plan = self.beet.export_partial_plan(positions_to_update, include_movable=False)
         evaluator = plan_optimizer.MAIN_EVALUATOR
         for pos in positions_to_update:
             self.beet.set_quality(pos, evaluator.evaluate_cell(plan, pos))
