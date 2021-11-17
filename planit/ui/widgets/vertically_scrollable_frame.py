@@ -22,6 +22,10 @@ class VerticallyScrollableFrame (tk.Frame):
         self._container_id = self.canvas.create_window(0, 0, window=self.container, anchor=tk.NW)
         self.container.bind("<Configure>", lambda event: self._update_scrollregion())
         self.canvas.bind("<Configure>", self._on_container_resize)
+        self.canvas.bind_all("<MouseWheel>", self._on_mouse_wheel_scroll)
+
+    def _on_mouse_wheel_scroll(self, event):
+        self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
     def _update_scrollregion(self):
         self.canvas.config(scrollregion=self.canvas.bbox(tk.ALL))
