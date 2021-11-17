@@ -26,6 +26,9 @@ def linspace(start, stop, num=50, include_endpoint=True):
 
 
 def create_gradient(colors, steps_per_color=5):
+    if steps_per_color == 0:
+        return colors
+    
     gradient = []
     colors = list(colour.Color(color) for color in colors)
 
